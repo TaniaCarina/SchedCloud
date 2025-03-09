@@ -9,11 +9,33 @@ import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Scanner;
 
 public class EnergyManagementSimulator {
     public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Select Scheduling Algorithm:");
+        System.out.println("1. RoundRobin1");
+        System.out.println("2. ACO (Ant Colony Optimization)");
+        int choice = scanner.nextInt();
+
+        Algorithms.SchedulingAlgorithm algorithm;
+        switch (choice) {
+            case 1:
+                algorithm = new RoundRobin();
+                break;
+            case 2:
+                algorithm = new ACO();
+                break;
+
+            default:
+                System.out.println("Invalid choice! Defaulting to RoundRobin.");
+                algorithm = new RoundRobin();
+        }
+
         int numHosts = 10;
-        int numVMs = 20;
+        //int numVMs = 20;
         int numCloudlets = 50;
 
         try {
@@ -49,14 +71,16 @@ public class EnergyManagementSimulator {
             List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
             broker.submitGuestList(vmList);
 
+
+            algorithm.runAlgorithm(broker, vmList, cloudletList);
+
             // Apelam scaling-ul dupa scheduling
-            EnergyAwareMinMinScheduler.schedule(vmList, cloudletList);
             scaleUpVMs(broker, vmList, 20); // Scalam daca e nevoie
             shutdownIdleVMs(vmList, cloudletList); // Oprim VM-urile neutilizate
 
 
 
-            // Start Simulation
+            // Start Simulation2
             CloudSim.startSimulation();
             CloudSim.stopSimulation();
 
