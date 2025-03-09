@@ -45,13 +45,13 @@ public class EnergyManagementSimulator {
 
 
             //////////////// cu SCALARE DINAMICA
-            // Creăm doar VM-urile necesare inițial
+            // Cream doar VM-urile necesare initial
             List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
             broker.submitGuestList(vmList);
 
-            // Apelăm scaling-ul după scheduling
+            // Apelam scaling-ul dupa scheduling
             EnergyAwareMinMinScheduler.schedule(vmList, cloudletList);
-            scaleUpVMs(broker, vmList, 100); // Scalăm dacă e nevoie
+            scaleUpVMs(broker, vmList, 20); // Scalam daca e nevoie
             shutdownIdleVMs(vmList, cloudletList); // Oprim VM-urile neutilizate
 
 
@@ -73,7 +73,7 @@ public class EnergyManagementSimulator {
     // nu e deloc eficienta, energie consumata aproape dubla
     private static List<Vm> createDynamicVMs(int brokerId, int numCloudlets) {
         List<Vm> vmList = new ArrayList<>();
-        int initialVMs = Math.max(50, numCloudlets /50); // Începem cu un minim de 5 VM-uri sau 1 VM la fiecare 5 cloudlet-uri
+        int initialVMs = Math.max(10, numCloudlets /10); // incepem cu un minim de 5 VM-uri sau 1 VM la fiecare 5 cloudlet-uri
 
         for (int i = 0; i < initialVMs; i++) {
             int mips = 500;
@@ -83,7 +83,7 @@ public class EnergyManagementSimulator {
             Vm vm = new Vm(i, brokerId, mips, 1, ram, bw, size, "Xen", new CloudletSchedulerTimeShared());
             vmList.add(vm);
         }
-        System.out.println("✅ [Scaling] Pornite initial " + initialVMs + " VM-uri.");
+        System.out.println(" ~!!!~ [Scaling] Pornite initial " + initialVMs + " VM-uri.");
         return vmList;
     }
 
@@ -91,24 +91,27 @@ public class EnergyManagementSimulator {
 
 
     private static void scaleUpVMs(DatacenterBroker broker, List<Vm> vmList, int maxVMs) {
+        if (CloudSim.clock() > 0) { // Daca simularea s-a terminat, nu mai scalam
+            return;
+        }
+
         int activeVMs = vmList.size();
         int waitingCloudlets = (int) broker.getCloudletSubmittedList().stream()
                 .filter(cloudlet -> !cloudlet.isFinished())
                 .count();
 
-
-
         if (waitingCloudlets > activeVMs * 2 && activeVMs < maxVMs) {
-            int newVMs = Math.min(5, maxVMs - activeVMs); // Adăugăm maxim 5 VM-uri odată
+            int newVMs = Math.min(5, maxVMs - activeVMs);
 
             for (int i = 0; i < newVMs; i++) {
                 int newId = activeVMs + i;
                 Vm vm = new Vm(newId, broker.getId(), 500, 1, 2048, 1000, 10000, "Xen", new CloudletSchedulerTimeShared());
                 vmList.add(vm);
             }
-            System.out.println("✅ [Scaling] Adăugate " + newVMs + " VM-uri suplimentare.");
+            System.out.println(" ~!!!~ [Scaling] Adaugate " + newVMs + " VM-uri suplimentare.");
         }
     }
+
 
 
     private static Datacenter createDatacenter(String name, int numHosts) {
@@ -172,10 +175,10 @@ public class EnergyManagementSimulator {
     //================ INITIAL ======================
 //    private static double calculateEnergyConsumption(Cloudlet cloudlet) {
 //        double executionTime = cloudlet.getActualCPUTime();
-//        double mips = 500; // Presupunem că fiecare VM are 500 MIPS
+//        double mips = 500; // Presupunem ca fiecare VM are 500 MIPS
 //
-//        // Formula de consum energetic: Puterea (în Watt) * Timpul de execuție
-//        // Aproximăm puterea consumată de un VM la 0.5W per MIPS utilizat
+//        // Formula de consum energetic: Puterea (in Watt) * Timpul de executie
+//        // Aproximam puterea consumata de un VM la 0.5W per MIPS utilizat
 //        double powerPerMIPS = 0.5;
 //        return executionTime * mips * powerPerMIPS / 1000.0; // Convertim la kWh
 //    }
@@ -184,11 +187,12 @@ public class EnergyManagementSimulator {
 
     // ======================= Dynamic Voltage and Frequency Scaling (DVFS)
     // ======================= DVFS permite ajustarea frecventei CPU pentru a reduce consumul de energie atunci cand VM-ul nu este folosit intens.
+    // se calc energia pt fiecare cloudlet
     private static double calculateEnergyConsumption(Cloudlet cloudlet, Vm vm) {
-        double executionTime = cloudlet.getActualCPUTime();
+        double executionTime = cloudlet.getActualCPUTime();  //!!! timpul real de executie al Cloudlet-ului   si    vm.getMips = capacitatea de procesare a VM-ului
 
-        // DVFS: Dacă VM-ul are o utilizare CPU sub 50%, reducem frecvența
-        double frequencyFactor = vm.getMips() > 250 ? 1.0 : 0.7;  // Dacă MIPS < 250, frecvența e mai mică
+        // DVFS: Daca VM-ul are o utilizare CPU sub 50%, reducem frecventa
+        double frequencyFactor = vm.getMips() > 250 ? 1.0 : 0.7;  // Daca MIPS < 250, frecventa e mai mica
 
         double powerPerMIPS = 0.5 * frequencyFactor;  // Reducem consumul energetic
         return executionTime * vm.getMips() * powerPerMIPS / 1000.0;  // Convertim la kWh
@@ -197,29 +201,26 @@ public class EnergyManagementSimulator {
 
 
     // ===================== Oprirea VM-urilor Idle pentru economisirea energiei
-    // ===================== Daca un VM nu are cloudlet-uri alocate, îl oprim pentru a reduce consumul.
+    // ===================== Daca un VM nu are cloudlet-uri alocate, il oprim pentru a reduce consumul.
     private static void shutdownIdleVMs(List<Vm> vmList, List<Cloudlet> cloudletList) {
-        boolean vmShutDown = false;
-        for (Vm vm : vmList) {
-            boolean isUsed = false;
-            for (Cloudlet cloudlet : cloudletList) {
-                if (cloudlet.getVmId() == vm.getId()) {
-                    isUsed = true;
-                    break;
-                }
-            }
-
-            if (!isUsed) {
-                System.out.println("~ [Energy Optimization - shutdownIdleVMs] Oprire VM #" + vm.getId() + " pentru a economisi energie.");
-                vm.setMips(0); // Simulăm oprirea VM-ului
-                vmShutDown = true;
-            }
+        if (CloudSim.clock() > 0) { // Daca simularea s-a terminat, nu mai oprim VM-uri
+            return;
         }
 
-        if (!vmShutDown) {
-            System.out.println(" ~ [Energy Optimization - shutdownIdleVMs] Toate VM-urile au fost utilizate. Niciun VM nu a fost oprit.");
+        int vmCount = 0;
+        for (Vm vm : vmList) {
+            boolean isUsed = cloudletList.stream().anyMatch(cloudlet -> cloudlet.getVmId() == vm.getId());
+            if (!isUsed) {
+                System.out.println(" ~!!!~  [Scaling] Oprire VM #" + vm.getId() + " pentru a economisi energie.");
+                vm.setMips(0); // Simulam oprirea VM-ului
+                vmCount++;
+            }
+        }
+        if (vmCount == 0) {
+            System.out.println(" ~!!!~  [Scaling] Toate VM-urile active sunt utilizate, nu s-au oprit VM-uri.");
         }
     }
+
 
 
 
@@ -258,6 +259,7 @@ public class EnergyManagementSimulator {
 
     private static void printResults(DatacenterBroker broker, List<Vm> vmList) {
         List<Cloudlet> cloudletList = broker.getCloudletReceivedList();
+        double totalEnergyConsumption = 0.0;
 
         // Header formatat corect
         System.out.printf("%-12s %-10s %-5s %-12s %-18s%n",
@@ -266,7 +268,7 @@ public class EnergyManagementSimulator {
 
         // Date formatate cu padding fix
         for (Cloudlet cloudlet : cloudletList) {
-            // Găsim VM-ul asociat cloudlet-ului
+            // Gasim VM-ul asociat cloudlet-ului
             Vm assignedVm = null;
             for (Vm vm : vmList) {
                 if (vm.getId() == cloudlet.getVmId()) {
@@ -275,9 +277,9 @@ public class EnergyManagementSimulator {
                 }
             }
 
-            // Calculăm consumul de energie doar dacă găsim VM-ul asociat
-            double energyConsumption = (assignedVm != null) ?
-                    calculateEnergyConsumption(cloudlet, assignedVm) : 0.0;
+            // Calculam consumul de energie doar daca gasim VM-ul asociat
+            double energyConsumption = (assignedVm != null) ? calculateEnergyConsumption(cloudlet, assignedVm) : 0.0;
+            totalEnergyConsumption += energyConsumption;
 
             System.out.printf("%-12d %-10s %-5d %-12.2f %-18.2f%n",
                     cloudlet.getCloudletId(),
@@ -286,6 +288,9 @@ public class EnergyManagementSimulator {
                     cloudlet.getActualCPUTime(),
                     energyConsumption);
         }
+
+        System.out.println("--------------------------------------------------------------");
+        System.out.printf("TOTAL ENERGY CONSUMPTION: %.2f kWh%n", totalEnergyConsumption);
     }
 
 
