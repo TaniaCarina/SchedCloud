@@ -1,4 +1,4 @@
-package org.cloudbus.cloudsim.examples.energy;
+package org.cloudbus.cloudsim.examples.energy_licenta.algorithms;
 
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Vm;
@@ -6,7 +6,7 @@ import org.cloudbus.cloudsim.Cloudlet;
 
 import java.util.List;
 
-public class FCFS implements Algorithms.SchedulingAlgorithm {
+public class FCFS implements SchedulingAlgorithm {
     @Override
     public void runAlgorithm(DatacenterBroker broker, List<Vm> vmlist, List<Cloudlet> cloudletList) {
         for (int i = 0; i < cloudletList.size(); i++) {

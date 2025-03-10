@@ -1,4 +1,4 @@
-package org.cloudbus.cloudsim.examples.energy;
+package org.cloudbus.cloudsim.examples.energy_licenta.algorithms;
 
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Vm;
@@ -9,7 +9,7 @@ import java.util.List;
 
 
 
-public class ACO implements Algorithms.SchedulingAlgorithm {
+public class ACO implements SchedulingAlgorithm {
     private final int numAnts = 10;
     private final double evaporationRate = 0.5;
     private final double pheromoneIncrease = 1.0;

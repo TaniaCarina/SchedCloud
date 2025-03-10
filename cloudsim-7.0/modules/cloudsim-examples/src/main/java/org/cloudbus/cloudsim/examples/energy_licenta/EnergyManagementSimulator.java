@@ -1,7 +1,11 @@
-package org.cloudbus.cloudsim.examples.energy;
+package org.cloudbus.cloudsim.examples.energy_licenta;
 
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.ACO;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.FCFS;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.RoundRobin;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.SchedulingAlgorithm;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
@@ -21,7 +25,7 @@ public class EnergyManagementSimulator {
         System.out.println("3. FCFS (First-Come-First-Serve)");
         int choice = scanner.nextInt();
 
-        Algorithms.SchedulingAlgorithm algorithm;
+        SchedulingAlgorithm algorithm;
         switch (choice) {
             case 1:
                 algorithm = new RoundRobin();
@@ -90,7 +94,7 @@ public class EnergyManagementSimulator {
 
             // Print Results
             printResults(broker, vmList, algorithm);
-            
+
             //printResults(broker);
         } catch (Exception e) {
             e.printStackTrace();
@@ -286,7 +290,7 @@ public class EnergyManagementSimulator {
 //        }
 //    }
 
-    private static void printResults(DatacenterBroker broker, List<Vm> vmList, Algorithms.SchedulingAlgorithm algorithm) {
+    private static void printResults(DatacenterBroker broker, List<Vm> vmList, SchedulingAlgorithm algorithm) {
         List<Cloudlet> cloudletList = broker.getCloudletReceivedList();
         double totalEnergyConsumption = 0.0;
 

@@ -1,4 +1,4 @@
-package Algorithms;
+package org.cloudbus.cloudsim.examples.energy_licenta.algorithms;
 
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Vm;

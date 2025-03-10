@@ -1,11 +1,11 @@
-package org.cloudbus.cloudsim.examples.energy;
+package org.cloudbus.cloudsim.examples.energy_licenta.algorithms;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Vm;
 import java.util.List;
 
-public class RoundRobin implements Algorithms.SchedulingAlgorithm {
+public class RoundRobin implements SchedulingAlgorithm {
 
     @Override
     public void runAlgorithm(DatacenterBroker broker, List<Vm> vmList, List<Cloudlet> cloudletList){
