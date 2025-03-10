@@ -16,8 +16,9 @@ public class EnergyManagementSimulator {
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Select Scheduling Algorithm:");
-        System.out.println("1. RoundRobin1");
+        System.out.println("1. RoundRobin");
         System.out.println("2. ACO (Ant Colony Optimization)");
+        System.out.println("3. FCFS (First-Come-First-Serve)");
         int choice = scanner.nextInt();
 
         Algorithms.SchedulingAlgorithm algorithm;
@@ -27,6 +28,9 @@ public class EnergyManagementSimulator {
                 break;
             case 2:
                 algorithm = new ACO();
+                break;
+            case 3:
+                algorithm = new FCFS();
                 break;
 
             default:
@@ -85,7 +89,8 @@ public class EnergyManagementSimulator {
             CloudSim.stopSimulation();
 
             // Print Results
-            printResults(broker, vmList);
+            printResults(broker, vmList, algorithm);
+            
             //printResults(broker);
         } catch (Exception e) {
             e.printStackTrace();
@@ -281,7 +286,7 @@ public class EnergyManagementSimulator {
 //        }
 //    }
 
-    private static void printResults(DatacenterBroker broker, List<Vm> vmList) {
+    private static void printResults(DatacenterBroker broker, List<Vm> vmList, Algorithms.SchedulingAlgorithm algorithm) {
         List<Cloudlet> cloudletList = broker.getCloudletReceivedList();
         double totalEnergyConsumption = 0.0;
 
@@ -314,8 +319,10 @@ public class EnergyManagementSimulator {
         }
 
         System.out.println("--------------------------------------------------------------");
+        System.out.printf("Algorithm Used: %s%n", algorithm.getClass().getSimpleName());
         System.out.printf("TOTAL ENERGY CONSUMPTION: %.2f kWh%n", totalEnergyConsumption);
     }
+
 
 
 }
