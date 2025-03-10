@@ -16,9 +16,9 @@ public class ResultsPrinter {
         double totalEnergyConsumption = 0.0;
 
         // Header formatat corect
-        System.out.printf("%-12s %-10s %-5s %-12s %-18s%n",
-                "CloudletID", "Status", "VM", "Exec Time", "Energy Consumption");
-        System.out.println("--------------------------------------------------------------");
+        System.out.printf("%-12s %-10s %-5s %-12s %-12s %-12s %-18s%n",
+                "CloudletID", "Status", "VM", "Start Time", "Finish Time", "Exec Time", "Energy Consumption");
+        System.out.println("------------------------------------------------------------------------------------------");
 
         // Date formatate cu padding fix
         for (Cloudlet cloudlet : cloudletList) {
@@ -35,17 +35,18 @@ public class ResultsPrinter {
             double energyConsumption = (assignedVm != null) ? calculateEnergyConsumption(cloudlet, assignedVm) : 0.0;
             totalEnergyConsumption += energyConsumption;
 
-            System.out.printf("%-12d %-10s %-5d %-12.2f %-18.2f%n",
+            System.out.printf("%-12d %-10s %-5d %-12.2f %-12.2f %-12.2f %-18.2f%n",
                     cloudlet.getCloudletId(),
                     cloudlet.isFinished() ? "SUCCESS" : "FAILED",
                     cloudlet.getVmId(),
+                    cloudlet.getExecStartTime(),
+                    cloudlet.getFinishTime(),
                     cloudlet.getActualCPUTime(),
                     energyConsumption);
         }
 
-        System.out.println("--------------------------------------------------------------");
+        System.out.println("------------------------------------------------------------------------------------------");
         System.out.printf("Algorithm Used: %s%n", algorithm.getClass().getSimpleName());
         System.out.printf("TOTAL ENERGY CONSUMPTION: %.2f kWh%n", totalEnergyConsumption);
     }
-
 }

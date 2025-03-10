@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VMManager {
-    private static List<Vm> createVMs(int brokerId, int numVMs) {
+    static List<Vm> createVMs(int brokerId, int numVMs) {
         List<Vm> vmList = new ArrayList<>();
         for (int i = 0; i < numVMs; i++) {
             int mips = 500;
@@ -23,9 +23,28 @@ public class VMManager {
 
     //////////////////// SCALARE DINAMICA LA VM-URI ///////////////////////
 
+
+    /**
+     * started with 20 VMs, the system automatically consolidated (shut down) VMs 17, 18, and 19 because they were not needed.
+     *  RoundRobin
+     *  Before: ~361 kWh   with MIN_INITIAL_VMS = 5  consolidated 0
+     *  After: ~156 kWh    with MIN_INITIAL_VMS = 20 consolidated 3
+     *  After: ~86  kWh    with MIN_INITIAL_VMS = 30 consolidated 13
+     *  After: ~13  kWh    with MIN_INITIAL_VMS = 60 consolidated 43  trebuie alocate mai multe resurse, apar unele erori
+     *  Daca creezi 60 de VM-uri, ultimele 20 vor esua, pentru ca nu exista suficient spatiu pe host-uri
+     *  Daca resursele (RAM, CPU, Bandwidth) sunt deja consumate de primele VM-uri, nu se mai pot aloca altele
+     *
+     *
+     *
+     *  !!!!  More initial VMs can reduce execution time, lowering energy use.
+     *  Consolidation + fast execution = extreme energy efficiency
+     *  Higher initial VMs lead to better parallel execution
+     */
+    private static final int MIN_INITIAL_VMS = 40;  // Start with fewer VMs
+
     public static List<Vm> createDynamicVMs(int brokerId, int numCloudlets) {
         List<Vm> vmList = new ArrayList<>();
-        int initialVMs = Math.max(10, numCloudlets /10); // incepem cu un minim de 5 VM-uri sau 1 VM la fiecare 5 cloudlet-uri
+        int initialVMs = Math.max(MIN_INITIAL_VMS, numCloudlets / 10);
 
         for (int i = 0; i < initialVMs; i++) {
             int mips = 500;
@@ -35,9 +54,10 @@ public class VMManager {
             Vm vm = new Vm(i, brokerId, mips, 1, ram, bw, size, "Xen", new CloudletSchedulerTimeShared());
             vmList.add(vm);
         }
-        System.out.println(" ~!!!~ [Scaling] Pornite initial " + initialVMs + " VM-uri.");
+        System.out.println(" ~!!!~ [Scaling] Started with " + initialVMs + " VM(s).");
         return vmList;
     }
+
 
 
 }

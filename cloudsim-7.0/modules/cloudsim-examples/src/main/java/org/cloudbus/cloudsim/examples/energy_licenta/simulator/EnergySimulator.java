@@ -16,11 +16,14 @@ import java.util.Scanner;
 
 import static org.cloudbus.cloudsim.examples.energy_licenta.EnergyManagementSimulator.*;
 import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.IdleVMShutdown.shutdownIdleVMs;
+import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMConsolidation.consolidateVMs;
+import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMScaler.scaleUpVMs;
 import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMScaler.scaleUpVMs;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.CloudletManager.createCloudlets;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.DatacenterManager.createDatacenter;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResults;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.createDynamicVMs;
+import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.createVMs;
 
 public class EnergySimulator {
     public static void main(String[] args) {
@@ -50,7 +53,7 @@ public class EnergySimulator {
         }
 
         int numHosts = 10;
-        //int numVMs = 20;
+        int numVMs = 20;
         int numCloudlets = 50;
 
         try {
@@ -65,7 +68,7 @@ public class EnergySimulator {
             // Create Broker
             DatacenterBroker broker = new DatacenterBroker("Broker");
 
-//            // Create VMs
+//            // Create VMs FARA scalare dinamica
 //            List<Vm> vmList = createVMs(broker.getId(), numVMs);
 //            broker.submitGuestList(vmList);
 
@@ -74,22 +77,20 @@ public class EnergySimulator {
             List<Cloudlet> cloudletList = createCloudlets(broker.getId(), numCloudlets);
             broker.submitCloudletList(cloudletList);
 
-//            // Apply Energy-Aware Min-Min Scheduling
-//            EnergyAwareMinMinScheduler.schedule(vmList, cloudletList); // Scheduling
-//            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
-//            shutdownIdleVMs(vmList, cloudletList); // Oprire VM-uri idle
-
 
             //////////////// cu SCALARE DINAMICA
             // Cream doar VM-urile necesare initial
             List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
             broker.submitGuestList(vmList);
 
-
             algorithm.runAlgorithm(broker, vmList, cloudletList);
 
             // Apelam scaling-ul dupa scheduling
-            scaleUpVMs(broker, vmList, 20); // Scalam daca e nevoie
+            //scaleUpVMs(broker, vmList, 20); // Scalam daca e nevoie
+            scaleUpVMs(broker, vmList, numCloudlets / 3);
+
+            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri   da consumul de energie mai putin pt ACO dar la restul nu
+
             shutdownIdleVMs(vmList, cloudletList); // Oprim VM-urile neutilizate
 
 

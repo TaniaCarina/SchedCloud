@@ -5,8 +5,8 @@ import org.cloudbus.cloudsim.Vm;
 
 public class EnergyCalculator {
 
-    // ======================= Dynamic Voltage and Frequency Scaling (DVFS)
-    // ======================= DVFS permite ajustarea frecventei CPU pentru a reduce consumul de energie atunci cand VM-ul nu este folosit intens.
+    //  Dynamic Voltage and Frequency Scaling (DVFS)
+    //  DVFS permite ajustarea frecventei CPU pentru a reduce consumul de energie atunci cand VM-ul nu este folosit intens.
     // se calc energia pt fiecare cloudlet
     public static double calculateEnergyConsumption(Cloudlet cloudlet, Vm vm) {
         double executionTime = cloudlet.getActualCPUTime();  //!!! timpul real de executie al Cloudlet-ului   si    vm.getMips = capacitatea de procesare a VM-ului
