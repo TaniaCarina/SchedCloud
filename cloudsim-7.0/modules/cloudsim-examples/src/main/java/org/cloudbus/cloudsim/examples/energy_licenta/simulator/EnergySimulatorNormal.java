@@ -10,19 +10,23 @@ import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.FCFS;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.RoundRobin;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.SchedulingAlgorithm;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 
-import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.IdleVMShutdown.shutdownIdleVMs;
-import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMConsolidation.consolidateVMs;
-import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMScaler.scaleUpVMs;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.CloudletManager.createCloudlets;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.DatacenterManager.createDatacenter;
+import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.DatacenterManager.createDatacenter_normal;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResults;
-import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.createDynamicVMs;
+//import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResultsNormal;
+import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResultsNormal;
+import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.createVMs;
 
-public class EnergySimulator {  //alocat dinamic
+public class EnergySimulatorNormal {
+
+    public static List<Datacenter> datacenterList = new ArrayList<>(); // 🔹 Stocăm Datacenters
+
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -43,7 +47,6 @@ public class EnergySimulator {  //alocat dinamic
             case 3:
                 algorithm = new FCFS();
                 break;
-
             default:
                 System.out.println("Invalid choice! Defaulting to RoundRobin.");
                 algorithm = new RoundRobin();
@@ -60,46 +63,33 @@ public class EnergySimulator {  //alocat dinamic
             CloudSim.init(numUsers, calendar, false);
 
             // Create Datacenter
-            Datacenter datacenter = createDatacenter("Datacenter_0", numHosts);
+            Datacenter datacenter = createDatacenter_normal("Datacenter_0", numHosts);
+            datacenterList.add(datacenter);
 
             // Create Broker
             DatacenterBroker broker = new DatacenterBroker("Broker");
+
+            // Create VMs FARA scalare dinamica
+            List<Vm> vmList = createVMs(broker.getId(), numVMs);
+            broker.submitGuestList(vmList);
 
             // Create Cloudlets
             List<Cloudlet> cloudletList = createCloudlets(broker.getId(), numCloudlets);
             broker.submitCloudletList(cloudletList);
 
-
-            //////////////// cu SCALARE DINAMICA
-            // Cream doar VM-urile necesare initial
-            List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
-            broker.submitGuestList(vmList);
-
+            // Execută algoritmul de scheduling
             algorithm.runAlgorithm(broker, vmList, cloudletList);
 
-            // Apelam scaling-ul dupa scheduling
-            //scaleUpVMs(broker, vmList, 20); // Scalam daca e nevoie
-
-            scaleUpVMs(broker, vmList, numCloudlets / 3);
-
-            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
-
-            shutdownIdleVMs(vmList, cloudletList); // Oprim VM-urile neutilizate
-
-
-            // Start Simulation2
+            // Start Simulation
             CloudSim.startSimulation();
             CloudSim.stopSimulation();
 
             // Print Results
-            printResults(broker, vmList, algorithm);
+            printResultsNormal(broker, vmList, algorithm);
 
-            //printResults(broker);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }
-
-
-

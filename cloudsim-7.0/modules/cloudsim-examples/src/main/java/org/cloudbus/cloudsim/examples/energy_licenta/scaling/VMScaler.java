@@ -27,19 +27,19 @@ public class VMScaler {
         double avgCpuUtilization = calculateAverageCPUUsage(vmList, broker);
 
         if (avgCpuUtilization > SCALE_UP_THRESHOLD && waitingCloudlets > activeVMs) {
-            int newVMs = Math.min(3, maxVMs - activeVMs); // Add up to 3 new VMs instead of 5
+            int newVMs = Math.min(3, maxVMs - activeVMs);
 
             for (int i = 0; i < newVMs; i++) {
                 int newId = activeVMs + i;
                 Vm vm = new Vm(newId, broker.getId(), 500, 1, 2048, 1000, 10000, "Xen", new CloudletSchedulerTimeShared());
                 vmList.add(vm);
             }
-            lastScaleTime = CloudSim.clock(); // Update last scale time
+            lastScaleTime = CloudSim.clock();
             System.out.println(" ~!!!~ [Scaling] Added " + newVMs + " new VM(s).");
         }
     }
 
-    // Make sure this method is implemented correctly
+    ////consumul de energie este calculat pe baza utilizarii cpu a fiecarui vm
     private static double calculateAverageCPUUsage(List<Vm> vmList, DatacenterBroker broker) {
         if (vmList.isEmpty()) return 0.0;
         double totalUsage = 0.0;

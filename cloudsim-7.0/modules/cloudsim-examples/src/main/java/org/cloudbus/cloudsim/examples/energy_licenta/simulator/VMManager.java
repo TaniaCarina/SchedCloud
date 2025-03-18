@@ -40,7 +40,7 @@ public class VMManager {
      *  Consolidation + fast execution = extreme energy efficiency
      *  Higher initial VMs lead to better parallel execution
      */
-    private static final int MIN_INITIAL_VMS = 40;  // Start with fewer VMs
+    private static final int MIN_INITIAL_VMS = 40;  //
 
     public static List<Vm> createDynamicVMs(int brokerId, int numCloudlets) {
         List<Vm> vmList = new ArrayList<>();

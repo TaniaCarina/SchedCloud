@@ -10,7 +10,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 # Citire date din CSV
-file_path = "simulation_results.csv"
+file_path = "../cloudsim-7.0/simulation_results.csv"
 data = pd.read_csv(file_path)
 
 # Obtine lista unica de Host-uri si VM-uri
