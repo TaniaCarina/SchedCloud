@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNormal;
 
+
 public class MainGUI extends Application {
 
     @Override
@@ -31,15 +32,36 @@ public class MainGUI extends Application {
         grid.setVgap(10);
         grid.setHgap(10);
 
-        // Label & Input pentru numărul de Host-uri
+        // Secțiunea pentru HOSTS
         Label hostsLabel = new Label("Number of Hosts:");
         TextField hostsInput = new TextField("10");
 
-        // Label & Input pentru numărul de VM-uri
+        Label hostMIPSLabel = new Label("Host MIPS:");
+        TextField hostMIPSInput = new TextField("10000");
+
+        Label hostRAMLabel = new Label("Host RAM (MB):");
+        TextField hostRAMInput = new TextField("32000");
+
+        // Secțiunea pentru VMs
         Label vmsLabel = new Label("Number of VMs:");
         TextField vmsInput = new TextField("40");
 
-        // Label & Input pentru numărul de Cloudlets
+        Label vmMIPSLabel = new Label("VM MIPS:");
+        TextField vmMIPSInput = new TextField("2500");
+
+        Label vmRAMLabel = new Label("VM RAM (MB):");
+        TextField vmRAMInput = new TextField("2048");
+
+        Label vmBWLabel = new Label("VM Bandwidth (MB/s):");
+        TextField vmBWInput = new TextField("1000");
+
+        Label vmSizeLabel = new Label("VM Storage (MB):");
+        TextField vmSizeInput = new TextField("10000");
+
+        Label pesNumberLabel = new Label("Cores per VM:");
+        TextField pesNumberInput = new TextField("1");
+
+        // Secțiunea pentru Cloudlets
         Label cloudletsLabel = new Label("Number of Cloudlets:");
         TextField cloudletsInput = new TextField("50");
 
@@ -53,15 +75,23 @@ public class MainGUI extends Application {
         Button runButton = new Button("Run Simulation");
         runButton.setOnAction(e -> {
             int numHosts = Integer.parseInt(hostsInput.getText());
+            int hostMIPS = Integer.parseInt(hostMIPSInput.getText());
+            int hostRAM = Integer.parseInt(hostRAMInput.getText());
             int numVMs = Integer.parseInt(vmsInput.getText());
+            int vmMIPS = Integer.parseInt(vmMIPSInput.getText());
+            int vmRAM = Integer.parseInt(vmRAMInput.getText());
+            long vmBW = Long.parseLong(vmBWInput.getText());
+            long vmSize = Long.parseLong(vmSizeInput.getText());
+            int pesNumber = Integer.parseInt(pesNumberInput.getText());
             int numCloudlets = Integer.parseInt(cloudletsInput.getText());
             String selectedAlgo = algoSelect.getValue();
 
             // Verifică tipul de simulare selectat
             if (dynamicSimButton.isSelected()) {
-                EnergySimulatorDynamic.runSimulation(numHosts, numVMs, numCloudlets, selectedAlgo);
+                EnergySimulatorDynamic.runSimulation(
+                        numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
             } else {
-                EnergySimulatorNormal.runSimulation(numHosts, numVMs, numCloudlets, selectedAlgo);
+                EnergySimulatorNormal.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
             }
 
             // Afișează mesaj de succes
@@ -70,21 +100,45 @@ public class MainGUI extends Application {
         });
 
         // Adaugă elementele în GridPane
-        grid.add(modeLabel, 0, 0);
-        grid.add(normalSimButton, 1, 0);
-        grid.add(dynamicSimButton, 2, 0);
-        grid.add(hostsLabel, 0, 1);
-        grid.add(hostsInput, 1, 1);
-        grid.add(vmsLabel, 0, 2);
-        grid.add(vmsInput, 1, 2);
-        grid.add(cloudletsLabel, 0, 3);
-        grid.add(cloudletsInput, 1, 3);
-        grid.add(algoLabel, 0, 4);
-        grid.add(algoSelect, 1, 4);
-        grid.add(runButton, 0, 5, 2, 1);
+        int row = 0;
+        grid.add(modeLabel, 0, row);
+        grid.add(normalSimButton, 1, row);
+        grid.add(dynamicSimButton, 2, row++);
+
+        grid.add(new Label("----- Hosts Configuration -----"), 0, row++, 2, 1);
+        grid.add(hostsLabel, 0, row);
+        grid.add(hostsInput, 1, row++);
+        grid.add(hostMIPSLabel, 0, row);
+        grid.add(hostMIPSInput, 1, row++);
+        grid.add(hostRAMLabel, 0, row);
+        grid.add(hostRAMInput, 1, row++);
+
+        grid.add(new Label("----- VMs Configuration -----"), 0, row++, 2, 1);
+        grid.add(vmsLabel, 0, row);
+        grid.add(vmsInput, 1, row++);
+        grid.add(vmMIPSLabel, 0, row);
+        grid.add(vmMIPSInput, 1, row++);
+        grid.add(vmRAMLabel, 0, row);
+        grid.add(vmRAMInput, 1, row++);
+        grid.add(vmBWLabel, 0, row);
+        grid.add(vmBWInput, 1, row++);
+        grid.add(vmSizeLabel, 0, row);
+        grid.add(vmSizeInput, 1, row++);
+        grid.add(pesNumberLabel, 0, row);
+        grid.add(pesNumberInput, 1, row++);
+
+        grid.add(new Label("----- Cloudlets Configuration -----"), 0, row++, 2, 1);
+        grid.add(cloudletsLabel, 0, row);
+        grid.add(cloudletsInput, 1, row++);
+
+        grid.add(new Label("----- Scheduling Algorithm -----"), 0, row++, 2, 1);
+        grid.add(algoLabel, 0, row);
+        grid.add(algoSelect, 1, row++);
+
+        grid.add(runButton, 0, row++, 2, 1);
 
         // Setează scena și afișează fereastra
-        Scene scene = new Scene(grid, 500, 300);
+        Scene scene = new Scene(grid, 600, 500);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

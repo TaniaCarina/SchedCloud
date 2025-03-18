@@ -7,16 +7,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VMManager {
-    static List<Vm> createVMs(int brokerId, int numVMs) {
+    public static List<Vm> createVMs(int brokerId, int numVMs, int mips, int ram, long bw, long size, int pesNumber) {
         List<Vm> vmList = new ArrayList<>();
+
         for (int i = 0; i < numVMs; i++) {
-            int mips = 500;
-            int ram = 2048;
-            long bw = 1000;
-            long size = 10000;
-            Vm vm = new Vm(i, brokerId, mips, 1, ram, bw, size, "Xen", new CloudletSchedulerTimeShared());
+            Vm vm = new Vm(i, brokerId, mips, pesNumber, ram, bw, size, "Xen", new CloudletSchedulerTimeShared());
             vmList.add(vm);
         }
+        System.out.println(" ~!!!~ [VM Creation] Created " + numVMs + " VM(s).");
+        return vmList;
+    }
+
+    private static final int MIN_INITIAL_VMS = 5;
+
+    public static List<Vm> createDynamicVMs(int brokerId, int numVMs, int mips, int ram, long bw, long size, int pesNumber) {
+        List<Vm> vmList = new ArrayList<>();
+        int initialVMs = Math.max(MIN_INITIAL_VMS, numVMs); // Folosim numărul exact de VM-uri specificat
+
+        for (int i = 0; i < initialVMs; i++) {
+            Vm vm = new Vm(i, brokerId, mips, pesNumber, ram, bw, size, "Xen", new CloudletSchedulerTimeShared());
+            vmList.add(vm);
+        }
+        System.out.println(" ~!!!~ [Scaling] Started with " + initialVMs + " VM(s).");
         return vmList;
     }
 
@@ -40,23 +52,24 @@ public class VMManager {
      *  Consolidation + fast execution = extreme energy efficiency
      *  Higher initial VMs lead to better parallel execution
      */
-    private static final int MIN_INITIAL_VMS = 40;  //
+    //private static final int MIN_INITIAL_VMS = 40;  //
 
-    public static List<Vm> createDynamicVMs(int brokerId, int numCloudlets) {
-        List<Vm> vmList = new ArrayList<>();
-        int initialVMs = Math.max(MIN_INITIAL_VMS, numCloudlets / 10);
 
-        for (int i = 0; i < initialVMs; i++) {
-            int mips = 500;
-            int ram = 2048;
-            long bw = 1000;
-            long size = 10000;
-            Vm vm = new Vm(i, brokerId, mips, 1, ram, bw, size, "Xen", new CloudletSchedulerTimeShared());
-            vmList.add(vm);
-        }
-        System.out.println(" ~!!!~ [Scaling] Started with " + initialVMs + " VM(s).");
-        return vmList;
-    }
+//    public static List<Vm> createDynamicVMs(int brokerId, int numCloudlets) {
+//        List<Vm> vmList = new ArrayList<>();
+//        int initialVMs = Math.max(MIN_INITIAL_VMS, numCloudlets / 10);
+//
+//        for (int i = 0; i < initialVMs; i++) {
+//            int mips = 500;
+//            int ram = 2048;
+//            long bw = 1000;
+//            long size = 10000;
+//            Vm vm = new Vm(i, brokerId, mips, 1, ram, bw, size, "Xen", new CloudletSchedulerTimeShared());
+//            vmList.add(vm);
+//        }
+//        System.out.println(" ~!!!~ [Scaling] Started with " + initialVMs + " VM(s).");
+//        return vmList;
+//    }
 
 
 

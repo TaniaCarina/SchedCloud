@@ -24,7 +24,9 @@ import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.
 
 public class EnergySimulatorDynamic {  //alocat dinamic
 
-    public static void runSimulation(int numHosts, int numVMs, int numCloudlets, String algorithmName) {
+    public static void runSimulation(int numHosts, int hostMIPS, int hostRAM,
+                                     int numVMs, int vmMIPS, int vmRAM, long vmBW, long vmSize, int pesNumber,
+                                     int numCloudlets, String algorithmName) {
         try {
             // Inițializare CloudSim
             int numUsers = 1;
@@ -32,7 +34,7 @@ public class EnergySimulatorDynamic {  //alocat dinamic
             CloudSim.init(numUsers, calendar, false);
 
             // Creare Datacenter
-            Datacenter datacenter = createDatacenter("Datacenter_0", numHosts);
+            Datacenter datacenter = createDatacenter("Datacenter_0", numHosts, hostMIPS, hostRAM);
 
             // Creare Broker
             DatacenterBroker broker = new DatacenterBroker("Broker");
@@ -59,7 +61,9 @@ public class EnergySimulatorDynamic {  //alocat dinamic
             }
 
             // Creare VM-uri dinamice
-            List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
+            //List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
+            List<Vm> vmList = createDynamicVMs(broker.getId(), numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber);
+
             broker.submitGuestList(vmList);
 
             // Rulare algoritm de scheduling
@@ -81,82 +85,82 @@ public class EnergySimulatorDynamic {  //alocat dinamic
             e.printStackTrace();
         }
     }
-    public static void main(String[] args) {
-
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Select Scheduling Algorithm:");
-        System.out.println("1. RoundRobin");
-        System.out.println("2. ACO (Ant Colony Optimization)");
-        System.out.println("3. FCFS (First-Come-First-Serve)");
-        int choice = scanner.nextInt();
-
-        SchedulingAlgorithm algorithm;
-        switch (choice) {
-            case 1:
-                algorithm = new RoundRobin();
-                break;
-            case 2:
-                algorithm = new ACO();
-                break;
-            case 3:
-                algorithm = new FCFS();
-                break;
-
-            default:
-                System.out.println("Invalid choice! Defaulting to RoundRobin.");
-                algorithm = new RoundRobin();
-        }
-
-        int numHosts = 10;
-        int numVMs = 40;
-        int numCloudlets = 50;
-
-        try {
-            // Initialize CloudSim
-            int numUsers = 1;
-            Calendar calendar = Calendar.getInstance();
-            CloudSim.init(numUsers, calendar, false);
-
-            // Create Datacenter
-            Datacenter datacenter = createDatacenter("Datacenter_0", numHosts);
-
-            // Create Broker
-            DatacenterBroker broker = new DatacenterBroker("Broker");
-
-            // Create Cloudlets
-            List<Cloudlet> cloudletList = createCloudlets(broker.getId(), numCloudlets);
-            broker.submitCloudletList(cloudletList);
-
-
-            //////////////// cu SCALARE DINAMICA
-            // Cream doar VM-urile necesare initial
-            List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
-            broker.submitGuestList(vmList);
-
-            algorithm.runAlgorithm(broker, vmList, cloudletList);
-
-            // Apelam scaling-ul dupa scheduling
-            //scaleUpVMs(broker, vmList, 20); // Scalam daca e nevoie
-
-            scaleUpVMs(broker, vmList, numCloudlets / 3);
-
-            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
-
-            shutdownIdleVMs(vmList, cloudletList); // Oprim VM-urile neutilizate
-
-
-            // Start Simulation2
-            CloudSim.startSimulation();
-            CloudSim.stopSimulation();
-
-            // Print Results
-            printResults(broker, vmList, algorithm);
-
-            //printResults(broker);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.println("Select Scheduling Algorithm:");
+//        System.out.println("1. RoundRobin");
+//        System.out.println("2. ACO (Ant Colony Optimization)");
+//        System.out.println("3. FCFS (First-Come-First-Serve)");
+//        int choice = scanner.nextInt();
+//
+//        SchedulingAlgorithm algorithm;
+//        switch (choice) {
+//            case 1:
+//                algorithm = new RoundRobin();
+//                break;
+//            case 2:
+//                algorithm = new ACO();
+//                break;
+//            case 3:
+//                algorithm = new FCFS();
+//                break;
+//
+//            default:
+//                System.out.println("Invalid choice! Defaulting to RoundRobin.");
+//                algorithm = new RoundRobin();
+//        }
+//
+//        int numHosts = 10;
+//        int numVMs = 40;
+//        int numCloudlets = 50;
+//
+//        try {
+//            // Initialize CloudSim
+//            int numUsers = 1;
+//            Calendar calendar = Calendar.getInstance();
+//            CloudSim.init(numUsers, calendar, false);
+//
+//            // Create Datacenter
+//            Datacenter datacenter = createDatacenter("Datacenter_0", numHosts);
+//
+//            // Create Broker
+//            DatacenterBroker broker = new DatacenterBroker("Broker");
+//
+//            // Create Cloudlets
+//            List<Cloudlet> cloudletList = createCloudlets(broker.getId(), numCloudlets);
+//            broker.submitCloudletList(cloudletList);
+//
+//
+//            //////////////// cu SCALARE DINAMICA
+//            // Cream doar VM-urile necesare initial
+//            List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
+//            broker.submitGuestList(vmList);
+//
+//            algorithm.runAlgorithm(broker, vmList, cloudletList);
+//
+//            // Apelam scaling-ul dupa scheduling
+//            //scaleUpVMs(broker, vmList, 20); // Scalam daca e nevoie
+//
+//            scaleUpVMs(broker, vmList, numCloudlets / 3);
+//
+//            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
+//
+//            shutdownIdleVMs(vmList, cloudletList); // Oprim VM-urile neutilizate
+//
+//
+//            // Start Simulation2
+//            CloudSim.startSimulation();
+//            CloudSim.stopSimulation();
+//
+//            // Print Results
+//            printResults(broker, vmList, algorithm);
+//
+//            //printResults(broker);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }
 
 
