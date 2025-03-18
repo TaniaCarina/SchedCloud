@@ -27,6 +27,59 @@ public class EnergySimulatorNormal {
 
     public static List<Datacenter> datacenterList = new ArrayList<>(); // 🔹 Stocăm Datacenters
 
+    public static void runSimulation(int numHosts, int numVMs, int numCloudlets, String algorithmName) {
+        SchedulingAlgorithm algorithm;
+        switch (algorithmName) {
+            case "RoundRobin":
+                algorithm = new RoundRobin();
+                break;
+            case "ACO":
+                algorithm = new ACO();
+                break;
+            case "FCFS":
+                algorithm = new FCFS();
+                break;
+            default:
+                System.out.println("Invalid choice! Defaulting to RoundRobin.");
+                algorithm = new RoundRobin();
+        }
+
+        try {
+            // Initialize CloudSim
+            int numUsers = 1;
+            Calendar calendar = Calendar.getInstance();
+            CloudSim.init(numUsers, calendar, false);
+
+            // Create Datacenter
+            Datacenter datacenter = createDatacenter("Datacenter_0", numHosts);
+
+            // Create Broker
+            DatacenterBroker broker = new DatacenterBroker("Broker");
+
+            // Create VMs
+            List<Vm> vmList = createVMs(broker.getId(), numVMs);
+            broker.submitGuestList(vmList);
+
+            // Create Cloudlets
+            List<Cloudlet> cloudletList = createCloudlets(broker.getId(), numCloudlets);
+            broker.submitCloudletList(cloudletList);
+
+            // Run scheduling algorithm
+            algorithm.runAlgorithm(broker, vmList, cloudletList);
+
+            // Start simulation
+            CloudSim.startSimulation();
+            CloudSim.stopSimulation();
+
+            // Print results
+            printResultsNormal(broker, vmList, algorithm);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);

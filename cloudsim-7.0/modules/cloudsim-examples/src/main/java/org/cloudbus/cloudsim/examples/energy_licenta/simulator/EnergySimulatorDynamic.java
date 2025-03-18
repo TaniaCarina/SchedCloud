@@ -22,7 +22,65 @@ import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.Datacenter
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResults;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.createDynamicVMs;
 
-public class EnergySimulator {  //alocat dinamic
+public class EnergySimulatorDynamic {  //alocat dinamic
+
+    public static void runSimulation(int numHosts, int numVMs, int numCloudlets, String algorithmName) {
+        try {
+            // Inițializare CloudSim
+            int numUsers = 1;
+            Calendar calendar = Calendar.getInstance();
+            CloudSim.init(numUsers, calendar, false);
+
+            // Creare Datacenter
+            Datacenter datacenter = createDatacenter("Datacenter_0", numHosts);
+
+            // Creare Broker
+            DatacenterBroker broker = new DatacenterBroker("Broker");
+
+            // Creare Cloudlets
+            List<Cloudlet> cloudletList = createCloudlets(broker.getId(), numCloudlets);
+            broker.submitCloudletList(cloudletList);
+
+            // Alegere algoritm de scheduling
+            SchedulingAlgorithm algorithm;
+            switch (algorithmName) {
+                case "RoundRobin":
+                    algorithm = new RoundRobin();
+                    break;
+                case "ACO":
+                    algorithm = new ACO();
+                    break;
+                case "FCFS":
+                    algorithm = new FCFS();
+                    break;
+                default:
+                    System.out.println("Invalid algorithm! Defaulting to RoundRobin.");
+                    algorithm = new RoundRobin();
+            }
+
+            // Creare VM-uri dinamice
+            List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
+            broker.submitGuestList(vmList);
+
+            // Rulare algoritm de scheduling
+            algorithm.runAlgorithm(broker, vmList, cloudletList);
+
+            // Aplicare scalare dinamică
+            scaleUpVMs(broker, vmList, numCloudlets / 3); // Scalare dacă este necesar
+            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
+            shutdownIdleVMs(vmList, cloudletList); // Oprire VM-uri neutilizate
+
+            // Start simulare
+            CloudSim.startSimulation();
+            CloudSim.stopSimulation();
+
+            // Afișare rezultate
+            printResults(broker, vmList, algorithm);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);

@@ -8,7 +8,7 @@ public class RunPythonAfterJava {
         System.out.println("Running Java Simulation...");
 
         // Aici rulezi simularea
-        org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulator.main(new String[]{});
+        org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic.main(new String[]{});
 
         System.out.println("Java simulation finished. Running Python...");
 
