@@ -5,6 +5,8 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNormal;
@@ -31,6 +33,7 @@ public class MainGUI extends Application {
         grid.setPadding(new Insets(20));
         grid.setVgap(10);
         grid.setHgap(10);
+        grid.setStyle("-fx-background-color: #f4f4f4; -fx-font-size: 14px;");
 
         // Secțiunea pentru HOSTS
         Label hostsLabel = new Label("Number of Hosts:");
@@ -73,6 +76,8 @@ public class MainGUI extends Application {
 
         // Buton pentru rularea simulării
         Button runButton = new Button("Run Simulation");
+        runButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;");
+
         runButton.setOnAction(e -> {
             int numHosts = Integer.parseInt(hostsInput.getText());
             int hostMIPS = Integer.parseInt(hostMIPSInput.getText());
@@ -86,17 +91,16 @@ public class MainGUI extends Application {
             int numCloudlets = Integer.parseInt(cloudletsInput.getText());
             String selectedAlgo = algoSelect.getValue();
 
-            // Verifică tipul de simulare selectat
+            String results;
             if (dynamicSimButton.isSelected()) {
-                EnergySimulatorDynamic.runSimulation(
-                        numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
+                results = EnergySimulatorDynamic.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
             } else {
-                EnergySimulatorNormal.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
+                results = EnergySimulatorNormal.runSimulation(
+                        numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo
+                );
             }
 
-            // Afișează mesaj de succes
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Simulation Completed! Results saved.", ButtonType.OK);
-            alert.showAndWait();
+            showResultsWindow(results);
         });
 
         // Adaugă elementele în GridPane
@@ -142,6 +146,32 @@ public class MainGUI extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
+    private void showResultsWindow(String results) {
+        Stage resultsStage = new Stage();
+        resultsStage.setTitle("Simulation Results");
+        resultsStage.initModality(Modality.APPLICATION_MODAL);
+        resultsStage.setMinWidth(600);
+        resultsStage.setMinHeight(400);
+
+        TextArea resultsArea = new TextArea(results);
+        resultsArea.setEditable(false);
+        resultsArea.setWrapText(true);
+        resultsArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
+
+        Button closeButton = new Button("Close");
+        closeButton.setStyle("-fx-background-color: #FF5733; -fx-text-fill: white; -fx-font-size: 14px;");
+        closeButton.setOnAction(e -> resultsStage.close());
+
+        VBox layout = new VBox(10);
+        layout.setPadding(new Insets(20));
+        layout.getChildren().addAll(new Label("Simulation Results:"), resultsArea, closeButton);
+
+        Scene scene = new Scene(layout, 600, 400);
+        resultsStage.setScene(scene);
+        resultsStage.showAndWait();
+    }
+
 
     public static void main(String[] args) {
         launch(args);

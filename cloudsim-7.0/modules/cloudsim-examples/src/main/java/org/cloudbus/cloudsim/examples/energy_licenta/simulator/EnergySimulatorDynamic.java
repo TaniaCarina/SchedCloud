@@ -20,13 +20,14 @@ import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMScaler.sca
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.CloudletManager.createCloudlets;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.DatacenterManager.createDatacenter;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResults;
+import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResultsStringBuilder;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.createDynamicVMs;
 
 public class EnergySimulatorDynamic {  //alocat dinamic
 
-    public static void runSimulation(int numHosts, int hostMIPS, int hostRAM,
-                                     int numVMs, int vmMIPS, int vmRAM, long vmBW, long vmSize, int pesNumber,
-                                     int numCloudlets, String algorithmName) {
+    public static String runSimulation(int numHosts, int hostMIPS, int hostRAM,
+                                       int numVMs, int vmMIPS, int vmRAM, long vmBW, long vmSize, int pesNumber,
+                                       int numCloudlets, String algorithmName) {
         try {
             // Inițializare CloudSim
             int numUsers = 1;
@@ -61,9 +62,7 @@ public class EnergySimulatorDynamic {  //alocat dinamic
             }
 
             // Creare VM-uri dinamice
-            //List<Vm> vmList = createDynamicVMs(broker.getId(), numCloudlets);
             List<Vm> vmList = createDynamicVMs(broker.getId(), numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber);
-
             broker.submitGuestList(vmList);
 
             // Rulare algoritm de scheduling
@@ -78,13 +77,16 @@ public class EnergySimulatorDynamic {  //alocat dinamic
             CloudSim.startSimulation();
             CloudSim.stopSimulation();
 
-            // Afișare rezultate
-            printResults(broker, vmList, algorithm);
+            // Returnăm rezultatele ca un String
+            return printResultsStringBuilder(broker, vmList, algorithm);
 
         } catch (Exception e) {
             e.printStackTrace();
+            return "Simulation failed due to an error!";
         }
     }
+
+}
 //    public static void main(String[] args) {
 //
 //        Scanner scanner = new Scanner(System.in);
@@ -161,7 +163,7 @@ public class EnergySimulatorDynamic {  //alocat dinamic
 //            e.printStackTrace();
 //        }
 //    }
-}
+
 
 
 

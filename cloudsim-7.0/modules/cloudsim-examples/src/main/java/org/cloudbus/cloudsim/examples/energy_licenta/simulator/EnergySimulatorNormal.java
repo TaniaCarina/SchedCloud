@@ -13,70 +13,71 @@ import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.SchedulingAlgori
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Scanner;
 
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.CloudletManager.createCloudlets;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.DatacenterManager.*;
-import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResults;
-//import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResultsNormal;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResultsNormal;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.createVMs;
 
 public class EnergySimulatorNormal {
 
-    public static List<Datacenter> datacenterList = new ArrayList<>(); // 🔹 Stocăm Datacenters
-
-    public static void runSimulation(int numHosts, int hostMIPS, int hostRAM, int numVMs, int vmMIPS, int vmRAM, long vmBW, long vmSize, int pesNumber, int numCloudlets, String algorithmName) {
-        SchedulingAlgorithm algorithm;
-        switch (algorithmName) {
-            case "RoundRobin":
-                algorithm = new RoundRobin();
-                break;
-            case "ACO":
-                algorithm = new ACO();
-                break;
-            case "FCFS":
-                algorithm = new FCFS();
-                break;
-            default:
-                System.out.println("Invalid choice! Defaulting to RoundRobin.");
-                algorithm = new RoundRobin();
-        }
-
+    public static String runSimulation(int numHosts, int hostMIPS, int hostRAM,
+                                       int numVMs, int vmMIPS, int vmRAM, long vmBW, long vmSize, int pesNumber,
+                                       int numCloudlets, String algorithmName) {
         try {
-            // Initialize CloudSim
+            // Inițializare CloudSim
             int numUsers = 1;
             Calendar calendar = Calendar.getInstance();
             CloudSim.init(numUsers, calendar, false);
 
-            // Create Datacenter
+            // Creare Datacenter cu parametrii corecți
             Datacenter datacenter = createDatacenter("Datacenter_0", numHosts, hostMIPS, hostRAM);
 
-            // Create Broker
+            // Creare Broker
             DatacenterBroker broker = new DatacenterBroker("Broker");
 
-            // Create VMs
-            List<Vm> vmList = createVMs(broker.getId(), numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber);
-            broker.submitGuestList(vmList);
-
-            // Create Cloudlets
+            // Creare Cloudlets
             List<Cloudlet> cloudletList = createCloudlets(broker.getId(), numCloudlets);
             broker.submitCloudletList(cloudletList);
 
-            // Run scheduling algorithm
+            // Alegere algoritm de scheduling
+            SchedulingAlgorithm algorithm;
+            switch (algorithmName) {
+                case "RoundRobin":
+                    algorithm = new RoundRobin();
+                    break;
+                case "ACO":
+                    algorithm = new ACO();
+                    break;
+                case "FCFS":
+                    algorithm = new FCFS();
+                    break;
+                default:
+                    algorithm = new RoundRobin();
+            }
+
+            // Creare VM-uri fără scalare dinamică
+            List<Vm> vmList = createVMs(broker.getId(), numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber);
+            broker.submitGuestList(vmList);
+
+            // Rulare algoritm de scheduling
             algorithm.runAlgorithm(broker, vmList, cloudletList);
 
-            // Start simulation
+            // Start simulare
             CloudSim.startSimulation();
             CloudSim.stopSimulation();
 
-            // Print results
-            printResultsNormal(broker, vmList, algorithm);
+            // Returnează rezultatele ca text
+            return printResultsNormal(broker, vmList, algorithm);
 
         } catch (Exception e) {
             e.printStackTrace();
+            return "Simulation failed due to an error!";
         }
     }
+}
+
+
 
 
 //    public static void main(String[] args) {
@@ -144,4 +145,4 @@ public class EnergySimulatorNormal {
 //        }
 //    }
 
-}
+
