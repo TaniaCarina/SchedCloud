@@ -14,7 +14,7 @@ import static org.cloudbus.cloudsim.examples.energy_licenta.utils.EnergyCalculat
 
     public class ResultsPrinter {
 
-        private static final Map<Integer, Integer> vmToHostMap = new HashMap<>(); // 🔹 Salvează VM-Host
+        private static final Map<Integer, Integer> vmToHostMap = new HashMap<>(); //  Salveaza VM-Host
 
         public static String printResultsStringBuilder(DatacenterBroker broker, List<Vm> vmList, SchedulingAlgorithm algorithm) {
             List<Cloudlet> cloudletList = broker.getCloudletReceivedList();
@@ -38,11 +38,12 @@ import static org.cloudbus.cloudsim.examples.energy_licenta.utils.EnergyCalculat
 
                 // Găsim VM-ul și Host-ul asociat cloudlet-ului
                 for (Vm vm : vmList) {
+
                     if (vm.getId() == cloudlet.getVmId()) {
                         assignedVm = vm;
-
+                        Host host = (Host) vm.getHost();
                         // Verificăm dacă VM-ul are un Host alocat
-                        if (vm.getHost() != null) {
+                        if (host != null) {
                             hostId = vm.getHost().getId();
                         } else {
                             hostId = -1;  // VM-ul nu are host alocat
@@ -176,22 +177,24 @@ import static org.cloudbus.cloudsim.examples.energy_licenta.utils.EnergyCalculat
 
         for (Cloudlet cloudlet : cloudletList) {
             Vm assignedVm = null;
-            int hostId = -1;
+            int vmId = cloudlet.getVmId();
+            int hostId = vmToHostMap.getOrDefault(vmId, -1);
 
             // Gasim VM-ul si Host-ul asociat cloudlet-ului
-            for (Vm vm : vmList) {
-                    if (vm.getId() == cloudlet.getVmId()) {
-                        assignedVm = vm;
-
-                        // Verificam dacă VM-ul are un Host alocat
-                        if (vm.getHost() != null) {
-                            hostId = vm.getHost().getId();
-                        } else {
-                            hostId = -1;  // VM-ul nu are host alocat
-                        }
-                        break;
-                    }
-                }
+//
+//            for (Vm vm : vmList) {
+//                    if (vm.getId() == cloudlet.getVmId()) {
+//                        assignedVm = vm;
+//
+//                        // Verificam dacă VM-ul are un Host alocat
+//                        if (vm.getHost() != null) {
+//                            hostId = vm.getHost().getId();
+//                        } else {
+//                            hostId = -1;  // VM-ul nu are host alocat
+//                        }
+//                        break;
+//                    }
+//                }
 
                 double energyConsumption = (assignedVm != null) ? calculateEnergyConsumption(cloudlet, assignedVm) : 0.0;
                 totalEnergyConsumption += energyConsumption;
@@ -215,7 +218,37 @@ import static org.cloudbus.cloudsim.examples.energy_licenta.utils.EnergyCalculat
 
         return null;
     }
-}
+
+        public static String printResultsStringBuilder_Normal(DatacenterBroker broker, List<Vm> vmList,
+                                                              SchedulingAlgorithm algorithm, Map<Integer, Integer> vmToHostMap) {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("CloudletID   Status     VM    Host  Start Time   Finish Time  Exec Time    Energy Consumption\n");
+            sb.append("--------------------------------------------------------------------------------------\n");
+
+            for (Cloudlet cloudlet : broker.getCloudletReceivedList()) {
+                int vmId = cloudlet.getVmId();
+                int hostId = vmToHostMap.getOrDefault(vmId, -1);
+
+                sb.append(String.format("%-12s %-10s %-6s %-6s %-12.2f %-12.2f %-12.2f %-12.2f\n",
+                        cloudlet.getCloudletId(),
+                        cloudlet.isFinished() ? "SUCCESS" : "FAILED",
+                        vmId,
+                        hostId,
+                        cloudlet.getExecStartTime(),
+                        cloudlet.getFinishTime(),
+                        cloudlet.getActualCPUTime(),
+                        0.0 // Energy calc if needed
+                ));
+            }
+
+            sb.append("--------------------------------------------------------------------------------------\n");
+            sb.append("Algorithm Used: ").append(algorithm.getClass().getSimpleName()).append("\n");
+
+            return sb.toString();
+        }
+
+    }
 
 
 

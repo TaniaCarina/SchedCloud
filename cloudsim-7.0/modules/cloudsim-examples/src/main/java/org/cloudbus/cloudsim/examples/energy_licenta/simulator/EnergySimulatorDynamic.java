@@ -12,18 +12,15 @@ import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.SchedulingAlgori
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Scanner;
 
-import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.IdleVMShutdown.shutdownIdleVMs;
 import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMConsolidation.consolidateVMs;
 import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMScaler.scaleUpVMs;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.CloudletManager.createCloudlets;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.DatacenterManager.createDatacenter;
-import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResults;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResultsStringBuilder;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.createDynamicVMs;
 
-public class EnergySimulatorDynamic {  //alocat dinamic
+public class EnergySimulatorDynamic {
 
     public static String runSimulation(int numHosts, int hostMIPS, int hostRAM,
                                        int numVMs, int vmMIPS, int vmRAM, long vmBW, long vmSize, int pesNumber,
@@ -74,16 +71,11 @@ public class EnergySimulatorDynamic {  //alocat dinamic
             // Rulare algoritm de scheduling
             algorithm.runAlgorithm(broker, vmList, cloudletList);
 
-//            // Aplicare scalare dinamică
-//            scaleUpVMs(broker, vmList, numCloudlets / 3); // Scalare dacă este necesar
-//            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
-//            shutdownIdleVMs(vmList, cloudletList); // Oprire VM-uri neutilizate
-
             // Start simulare
             CloudSim.startSimulation();
             CloudSim.stopSimulation();
 
-            // Returnăm rezultatele ca un String
+            // Returnam rezultatele ca un String
             return printResultsStringBuilder(broker, vmList, algorithm);
 
         } catch (Exception e) {

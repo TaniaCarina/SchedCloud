@@ -26,7 +26,18 @@ public class VMConsolidation {
 
     }
 
-}
+    // Consolidare "pasivă" – doar simulează logica, nu modifică nimic
+    public static void fakeConsolidateVMs(List<Vm> vmList, List<Cloudlet> cloudletList) {
+
+        int activeVMs = vmList.size() - 1 ;
+
+        for (int i = activeVMs; i < vmList.size(); i++) {
+            vmList.get(i).setMips(0);
+        }
+
+    }
+
+    }
 
 
 

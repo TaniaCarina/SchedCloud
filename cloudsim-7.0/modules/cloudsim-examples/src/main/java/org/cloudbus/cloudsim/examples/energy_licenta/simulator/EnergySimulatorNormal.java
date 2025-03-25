@@ -1,22 +1,20 @@
 package org.cloudbus.cloudsim.examples.energy_licenta.simulator;
 
-import org.cloudbus.cloudsim.Cloudlet;
-import org.cloudbus.cloudsim.Datacenter;
-import org.cloudbus.cloudsim.DatacenterBroker;
-import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.GuestEntity;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.ACO;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.FCFS;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.RoundRobin;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.SchedulingAlgorithm;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
+import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMConsolidation.*;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.CloudletManager.createCloudlets;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.DatacenterManager.*;
-import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.printResultsNormal;
+import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.ResultsPrinter.*;
 import static org.cloudbus.cloudsim.examples.energy_licenta.simulator.VMManager.createVMs;
 
 public class EnergySimulatorNormal {
@@ -31,7 +29,7 @@ public class EnergySimulatorNormal {
             CloudSim.init(numUsers, calendar, false);
 
             // Creare Datacenter cu parametrii corecți
-            Datacenter datacenter = createDatacenter("Datacenter_0", numHosts, hostMIPS, hostRAM);
+            Datacenter datacenter = createDatacenterNormal("Datacenter_0", numHosts, hostMIPS, hostRAM);
 
             // Creare Broker
             DatacenterBroker broker = new DatacenterBroker("Broker");
@@ -56,19 +54,21 @@ public class EnergySimulatorNormal {
                     algorithm = new RoundRobin();
             }
 
-            // Creare VM-uri fără scalare dinamică
+            // Creare VM-uri fara scalare dinamica
             List<Vm> vmList = createVMs(broker.getId(), numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber);
+
+            fakeConsolidateVMs(vmList, cloudletList);
             broker.submitGuestList(vmList);
+
 
             // Rulare algoritm de scheduling
             algorithm.runAlgorithm(broker, vmList, cloudletList);
 
-            // Start simulare
-            CloudSim.startSimulation();
-            CloudSim.stopSimulation();
 
-            // Returnează rezultatele ca text
-            return printResultsNormal(broker, vmList, algorithm);
+            CloudSim.startSimulation();
+
+            return printResultsStringBuilder(broker,  vmList, algorithm);
+
 
         } catch (Exception e) {
             e.printStackTrace();

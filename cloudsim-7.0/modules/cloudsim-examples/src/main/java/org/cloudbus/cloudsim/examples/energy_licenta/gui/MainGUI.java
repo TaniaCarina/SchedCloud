@@ -28,7 +28,7 @@ public class MainGUI extends Application {
         ToggleGroup toggleGroup = new ToggleGroup();
         normalSimButton.setToggleGroup(toggleGroup);
         dynamicSimButton.setToggleGroup(toggleGroup);
-        dynamicSimButton.setSelected(true); // Implicit, simularea cu scalare dinamică e selectată
+        dynamicSimButton.setSelected(true); // Implicit, simularea cu scalare dinamica e selectata
 
         // GridPane pentru layout
         GridPane grid = new GridPane();
@@ -138,7 +138,7 @@ public class MainGUI extends Application {
                 results = EnergySimulatorNormal.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
             }
 
-            // ✅ Afișează tot în fereastra finală
+            // Afiseaza tot în fereastra finala
             showResultsWindow(results, consoleOutput);
         });
 
