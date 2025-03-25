@@ -80,30 +80,6 @@ public class MainGUI extends Application {
         Button runButton = new Button("Run Simulation");
         runButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;");
 
-//        runButton.setOnAction(e -> {
-//            int numHosts = Integer.parseInt(hostsInput.getText());
-//            int hostMIPS = Integer.parseInt(hostMIPSInput.getText());
-//            int hostRAM = Integer.parseInt(hostRAMInput.getText());
-//            int numVMs = Integer.parseInt(vmsInput.getText());
-//            int vmMIPS = Integer.parseInt(vmMIPSInput.getText());
-//            int vmRAM = Integer.parseInt(vmRAMInput.getText());
-//            long vmBW = Long.parseLong(vmBWInput.getText());
-//            long vmSize = Long.parseLong(vmSizeInput.getText());
-//            int pesNumber = Integer.parseInt(pesNumberInput.getText());
-//            int numCloudlets = Integer.parseInt(cloudletsInput.getText());
-//            String selectedAlgo = algoSelect.getValue();
-//
-//            String results;
-//            if (dynamicSimButton.isSelected()) {
-//                results = EnergySimulatorDynamic.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
-//            } else {
-//                results = EnergySimulatorNormal.runSimulation(
-//                        numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo
-//                );
-//            }
-//
-//            showResultsWindow(results);
-//        });
 
         runButton.setOnAction(e -> {
             int numHosts = Integer.parseInt(hostsInput.getText());
@@ -135,7 +111,7 @@ public class MainGUI extends Application {
             if (dynamicSimButton.isSelected()) {
                 results = EnergySimulatorDynamic.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
             } else {
-                results = EnergySimulatorNormal.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
+                results = EnergySimulatorNormal.runSimulation(numHosts, hostMIPS, hostRAM, numVMs , vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
             }
 
             // Afiseaza tot în fereastra finala

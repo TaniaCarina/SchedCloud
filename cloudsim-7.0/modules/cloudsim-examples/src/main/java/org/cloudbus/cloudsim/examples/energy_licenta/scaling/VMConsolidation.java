@@ -26,7 +26,9 @@ public class VMConsolidation {
 
     }
 
-    // Consolidare "pasivă" – doar simulează logica, nu modifică nimic
+    // Consolidare "pasivă" – doar simulează logica, nu modifică nimic (pentru salvarea hostID-ului)
+    // daca se schimba o proprietate esentiala unui VM, se detecteaza modificarea si reevalueaza pozitionarea VM-urilor
+    // in host-uri si se salveaza hostul asociat VM-ului, altfel le sterge
     public static void fakeConsolidateVMs(List<Vm> vmList, List<Cloudlet> cloudletList) {
 
         int activeVMs = vmList.size() - 1 ;
