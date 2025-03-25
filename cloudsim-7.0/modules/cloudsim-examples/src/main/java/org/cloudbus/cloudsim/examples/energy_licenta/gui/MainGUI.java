@@ -11,6 +11,8 @@ import javafx.stage.Stage;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNormal;
 
+import java.io.PrintStream;
+
 
 public class MainGUI extends Application {
 
@@ -78,6 +80,31 @@ public class MainGUI extends Application {
         Button runButton = new Button("Run Simulation");
         runButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;");
 
+//        runButton.setOnAction(e -> {
+//            int numHosts = Integer.parseInt(hostsInput.getText());
+//            int hostMIPS = Integer.parseInt(hostMIPSInput.getText());
+//            int hostRAM = Integer.parseInt(hostRAMInput.getText());
+//            int numVMs = Integer.parseInt(vmsInput.getText());
+//            int vmMIPS = Integer.parseInt(vmMIPSInput.getText());
+//            int vmRAM = Integer.parseInt(vmRAMInput.getText());
+//            long vmBW = Long.parseLong(vmBWInput.getText());
+//            long vmSize = Long.parseLong(vmSizeInput.getText());
+//            int pesNumber = Integer.parseInt(pesNumberInput.getText());
+//            int numCloudlets = Integer.parseInt(cloudletsInput.getText());
+//            String selectedAlgo = algoSelect.getValue();
+//
+//            String results;
+//            if (dynamicSimButton.isSelected()) {
+//                results = EnergySimulatorDynamic.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
+//            } else {
+//                results = EnergySimulatorNormal.runSimulation(
+//                        numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo
+//                );
+//            }
+//
+//            showResultsWindow(results);
+//        });
+
         runButton.setOnAction(e -> {
             int numHosts = Integer.parseInt(hostsInput.getText());
             int hostMIPS = Integer.parseInt(hostMIPSInput.getText());
@@ -91,17 +118,30 @@ public class MainGUI extends Application {
             int numCloudlets = Integer.parseInt(cloudletsInput.getText());
             String selectedAlgo = algoSelect.getValue();
 
+            // ✅ Creează consola înainte de simulare
+            TextArea consoleOutput = new TextArea();
+            consoleOutput.setEditable(false);
+            consoleOutput.setWrapText(true);
+            consoleOutput.setPrefHeight(300);
+            consoleOutput.setStyle("-fx-font-family: monospace; -fx-control-inner-background: black; -fx-text-fill: white;");
+
+            // ✅ Redirecționează System.out înainte de rularea simulării
+            PrintStream ps = new PrintStream(new ConsoleOutputStream(consoleOutput), true);
+            System.setOut(ps);
+            System.setErr(ps);
+
+            // ✅ Rulează simularea
             String results;
             if (dynamicSimButton.isSelected()) {
                 results = EnergySimulatorDynamic.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
             } else {
-                results = EnergySimulatorNormal.runSimulation(
-                        numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo
-                );
+                results = EnergySimulatorNormal.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
             }
 
-            showResultsWindow(results);
+            // ✅ Afișează tot în fereastra finală
+            showResultsWindow(results, consoleOutput);
         });
+
 
         // Adaugă elementele în GridPane
         int row = 0;
@@ -147,12 +187,13 @@ public class MainGUI extends Application {
         primaryStage.show();
     }
 
-    private void showResultsWindow(String results) {
+    ///tabelul + ce e in consola
+    private void showResultsWindow(String results, TextArea consoleArea) {
         Stage resultsStage = new Stage();
         resultsStage.setTitle("Simulation Results");
         resultsStage.initModality(Modality.APPLICATION_MODAL);
-        resultsStage.setMinWidth(600);
-        resultsStage.setMinHeight(400);
+        resultsStage.setMinWidth(700);
+        resultsStage.setMinHeight(500);
 
         TextArea resultsArea = new TextArea(results);
         resultsArea.setEditable(false);
@@ -165,12 +206,42 @@ public class MainGUI extends Application {
 
         VBox layout = new VBox(10);
         layout.setPadding(new Insets(20));
-        layout.getChildren().addAll(new Label("Simulation Results:"), resultsArea, closeButton);
+        layout.getChildren().addAll(new Label("Simulation Output:"), consoleArea, new Label("Summary:"), resultsArea, closeButton);
 
-        Scene scene = new Scene(layout, 600, 400);
+        Scene scene = new Scene(layout);
         resultsStage.setScene(scene);
         resultsStage.showAndWait();
     }
+
+
+
+
+
+    ///doar tabelul
+//    private void showResultsWindow(String results) {
+//        Stage resultsStage = new Stage();
+//        resultsStage.setTitle("Simulation Results");
+//        resultsStage.initModality(Modality.APPLICATION_MODAL);
+//        resultsStage.setMinWidth(600);
+//        resultsStage.setMinHeight(400);
+//
+//        TextArea resultsArea = new TextArea(results);
+//        resultsArea.setEditable(false);
+//        resultsArea.setWrapText(true);
+//        resultsArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
+//
+//        Button closeButton = new Button("Close");
+//        closeButton.setStyle("-fx-background-color: #FF5733; -fx-text-fill: white; -fx-font-size: 14px;");
+//        closeButton.setOnAction(e -> resultsStage.close());
+//
+//        VBox layout = new VBox(10);
+//        layout.setPadding(new Insets(20));
+//        layout.getChildren().addAll(new Label("Simulation Results:"), resultsArea, closeButton);
+//
+//        Scene scene = new Scene(layout, 600, 400);
+//        resultsStage.setScene(scene);
+//        resultsStage.showAndWait();
+//    }
 
 
     public static void main(String[] args) {

@@ -63,15 +63,21 @@ public class EnergySimulatorDynamic {  //alocat dinamic
 
             // Creare VM-uri dinamice
             List<Vm> vmList = createDynamicVMs(broker.getId(), numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber);
+
+            // Aplicare scalare dinamică
+            scaleUpVMs(broker, vmList, numCloudlets / 3); // Scalare dacă este necesar
+            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
+            //shutdownIdleVMs(vmList, cloudletList); // Oprire VM-uri neutilizate
+
             broker.submitGuestList(vmList);
 
             // Rulare algoritm de scheduling
             algorithm.runAlgorithm(broker, vmList, cloudletList);
 
-            // Aplicare scalare dinamică
-            scaleUpVMs(broker, vmList, numCloudlets / 3); // Scalare dacă este necesar
-            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
-            shutdownIdleVMs(vmList, cloudletList); // Oprire VM-uri neutilizate
+//            // Aplicare scalare dinamică
+//            scaleUpVMs(broker, vmList, numCloudlets / 3); // Scalare dacă este necesar
+//            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
+//            shutdownIdleVMs(vmList, cloudletList); // Oprire VM-uri neutilizate
 
             // Start simulare
             CloudSim.startSimulation();
