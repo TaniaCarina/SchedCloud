@@ -4,10 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNormal;
@@ -16,132 +13,114 @@ import java.io.PrintStream;
 
 public class MainGUI extends Application {
 
-    private Label usedVMsLabel = new Label();
+    private final TextArea consoleOutput = new TextArea();
+    private TableView<ResultsTable> resultsTable = new TableView<>();
+    private Label summaryLabel = new Label("Total Energy: 0 \nAlgorithm: -");
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("CloudSim GUI - Energy Simulation");
+        primaryStage.setTitle("CloudSim7G - Energy Simulation");
+
+        VBox leftPane = new VBox(12);
+        leftPane.setPadding(new Insets(20));
+        leftPane.setPrefWidth(440);
+
+        VBox rightPane = new VBox(12);
+        rightPane.setPadding(new Insets(20));
+        rightPane.setPrefWidth(600);
+
+        HBox mainLayout = new HBox(leftPane, rightPane);
+        mainLayout.setStyle("-fx-background-color: #e0eaf5;");
+        mainLayout.setSpacing(20);
+
+        String labelStyle = "-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;";
+        String inputStyle = "-fx-background-color: #ffffff; -fx-text-fill: #0D1B2A;";
+
+        summaryLabel.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         Label modeLabel = new Label("Select Simulation Mode:");
+        modeLabel.setStyle(labelStyle);
         RadioButton normalSimButton = new RadioButton("Without Dynamic Scaling");
         RadioButton dynamicSimButton = new RadioButton("With Dynamic Scaling");
-
         ToggleGroup toggleGroup = new ToggleGroup();
         normalSimButton.setToggleGroup(toggleGroup);
         dynamicSimButton.setToggleGroup(toggleGroup);
         dynamicSimButton.setSelected(true);
 
-        GridPane grid = new GridPane();
-        grid.setPadding(new Insets(20));
-        grid.setVgap(10);
-        grid.setHgap(20);
-        grid.setStyle("-fx-background-color: #f4f4f4; -fx-font-size: 14px;");
+        TextField hostsInput = styledField("10", inputStyle);
+        TextField hostMIPSInput = styledField("10000", inputStyle);
+        TextField hostRAMInput = styledField("32", inputStyle);
+        TextField hostCoresInput = styledField("8", inputStyle);
+        TextField vmsInput = styledField("40", inputStyle);
+        TextField vmMIPSInput = styledField("2500", inputStyle);
+        TextField vmRAMInput = styledField("2", inputStyle);
+        TextField vmBWInput = styledField("1000", inputStyle);
+        TextField vmSizeInput = styledField("10000", inputStyle);
+        TextField pesNumberInput = styledField("1", inputStyle);
+        TextField cloudletsInput = styledField("50", inputStyle);
 
-        Label hostsLabel = new Label("Number of Hosts:");
-        TextField hostsInput = new TextField("10");
-
-        Label hostMIPSLabel = new Label("Host MIPS:");
-        TextField hostMIPSInput = new TextField("10000");
-
-        Label hostRAMLabel = new Label("Host RAM (GB):");
-        TextField hostRAMInput = new TextField("32");
-
-        Label hostCoresLabel = new Label("Cores per Host:");
-        TextField hostCoresInput = new TextField("8");
-
-        Label vmsLabel = new Label("Number of VMs:");
-        TextField vmsInput = new TextField("40");
-
-        Label vmMIPSLabel = new Label("VM MIPS:");
-        TextField vmMIPSInput = new TextField("1000");
-
-        Label vmRAMLabel = new Label("VM RAM (GB):");
-        TextField vmRAMInput = new TextField("1");
-
-        Label vmBWLabel = new Label("VM Bandwidth (MB/s):");
-        TextField vmBWInput = new TextField("1000");
-
-        Label vmSizeLabel = new Label("VM Storage (MB):");
-        TextField vmSizeInput = new TextField("10000");
-
-        Label pesNumberLabel = new Label("Cores per VM:");
-        TextField pesNumberInput = new TextField("1");
-
-        Label cloudletsLabel = new Label("Number of Cloudlets (Tasks):");
-        TextField cloudletsInput = new TextField("50");
-
-        Label algoLabel = new Label("Scheduling Algorithm:");
         ComboBox<String> algoSelect = new ComboBox<>();
         algoSelect.getItems().addAll("RoundRobin", "ACO", "FCFS");
         algoSelect.setValue("RoundRobin");
 
         Button runButton = new Button("Run Simulation");
-        runButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;");
-
         Button suggestButton = new Button("Suggest Resources");
-        suggestButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px;");
+        Button ecoButton = new Button("Eco Settings");
 
-        Button optimizeVMButton = new Button("Eco Settings");
-        optimizeVMButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 14px;");
+        runButton.setStyle("-fx-background-color: #1e81b0; -fx-text-fill: white;");
+        suggestButton.setStyle("-fx-background-color: #5193c7; -fx-text-fill: white;");
+        ecoButton.setStyle("-fx-background-color: #88c0d0; -fx-text-fill: #0D1B2A;");
 
-        optimizeVMButton.setOnAction(e -> {
-            vmRAMInput.setText("2");
-            vmMIPSInput.setText("2500");
-            pesNumberInput.setText("1");
+        leftPane.getChildren().addAll(
+                modeLabel, normalSimButton, dynamicSimButton,
+                labeledBox("Number of Hosts:", hostsInput, labelStyle),
+                labeledBox("Host MIPS:", hostMIPSInput, labelStyle),
+                labeledBox("Host RAM (GB):", hostRAMInput, labelStyle),
+                labeledBox("Cores per Host:", hostCoresInput, labelStyle),
+                labeledBox("Number of VMs:", vmsInput, labelStyle),
+                labeledBox("VM MIPS:", vmMIPSInput, labelStyle),
+                labeledBox("VM RAM (GB):", vmRAMInput, labelStyle),
+                labeledBox("VM Bandwidth (MB/s):", vmBWInput, labelStyle),
+                labeledBox("VM Storage (MB):", vmSizeInput, labelStyle),
+                labeledBox("Cores per VM:", pesNumberInput, labelStyle),
+                labeledBox("Number of Cloudlets (Tasks):", cloudletsInput, labelStyle),
+                labeledBox("Scheduling Algorithm:", algoSelect, labelStyle),
+                new HBox(10, runButton, suggestButton, ecoButton)
+        );
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("VM Optimization");
-            alert.setHeaderText("Eco Configuration Applied");
-            alert.setContentText("RAM set to 2 GB, MIPS set to 2500, cores set to 1\nThis configuration is energy-efficient.");
-            alert.showAndWait();
-        });
+        consoleOutput.setEditable(false);
+        consoleOutput.setPrefHeight(300);
+        consoleOutput.setStyle("-fx-font-family: Consolas; -fx-control-inner-background: #0D1B2A; -fx-text-fill: white;");
 
-        suggestButton.setOnAction(e -> {
-            try {
-                int numVMs = Integer.parseInt(vmsInput.getText());
-                int vmRAMGB = Integer.parseInt(vmRAMInput.getText());
-                int vmMIPS = Integer.parseInt(vmMIPSInput.getText());
-                int vmCores = Integer.parseInt(pesNumberInput.getText());
+        resultsTable = ResultsTable.buildTable();
+        resultsTable.setPrefHeight(200);
+        resultsTable.setMinWidth(600);
+        resultsTable.setMaxWidth(600);
 
-                int hostRAMGB = Integer.parseInt(hostRAMInput.getText());
-                int hostMIPS = Integer.parseInt(hostMIPSInput.getText());
-                int hostCores = Integer.parseInt(hostCoresInput.getText());
 
-                int totalRAMGB = numVMs * vmRAMGB;
-                int totalMIPS = numVMs * vmMIPS;
-                int totalCores = numVMs * vmCores;
+        resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-                int hostsByRAM = (int) Math.ceil((double) totalRAMGB / hostRAMGB);
-                int hostsByMIPS = (int) Math.ceil((double) totalMIPS / hostMIPS);
-                int hostsByCores = (int) Math.ceil((double) totalCores / hostCores);
+        Label outputLabel = new Label("Simulation Output:");
+        outputLabel.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
 
-                int suggestedHosts = Math.max(Math.max(hostsByRAM, hostsByMIPS), hostsByCores);
+        Label summaryTitle = new Label("Summary:");
+        summaryTitle.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
 
-                hostsInput.setText(String.valueOf(suggestedHosts));
-                hostRAMInput.setText(String.valueOf(hostRAMGB));
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Suggested Resources");
-                alert.setHeaderText("Based on VM requirements:");
-                alert.setContentText(
-                        "Total RAM required: " + totalRAMGB + " GB\n" +
-                                "Total MIPS required: " + totalMIPS + "\n" +
-                                "Total cores required: " + totalCores + "\n\n" +
-                                "Suggested number of hosts: " + suggestedHosts +
-                                " (based on RAM, MIPS, and core limits)"
-                );
-                alert.showAndWait();
-            } catch (NumberFormatException ex) {
-                showError("Please enter valid numeric values for VM and Host settings.");
-            }
-        });
+        rightPane.getChildren().addAll(
+                outputLabel,
+                consoleOutput,
+                summaryTitle,
+                resultsTable,
+                summaryLabel
+        );
+
 
         runButton.setOnAction(e -> {
             try {
                 int numHosts = Integer.parseInt(hostsInput.getText());
                 int hostMIPS = Integer.parseInt(hostMIPSInput.getText());
                 int hostRAM = Integer.parseInt(hostRAMInput.getText()) * 1024;
-
                 int numVMs = Integer.parseInt(vmsInput.getText());
                 int vmMIPS = Integer.parseInt(vmMIPSInput.getText());
                 int vmRAM = Integer.parseInt(vmRAMInput.getText()) * 1024;
@@ -151,125 +130,125 @@ public class MainGUI extends Application {
                 int numCloudlets = Integer.parseInt(cloudletsInput.getText());
                 String selectedAlgo = algoSelect.getValue();
 
-                int totalVMRam = numVMs * vmRAM;
-                int totalHostRam = numHosts * hostRAM;
-
-                if (totalVMRam > totalHostRam) {
-                    showError("Insufficient total RAM. Required: " + totalVMRam + " MB, Available: " + totalHostRam + " MB");
-                    return;
-                }
-
-                TextArea consoleOutput = new TextArea();
-                consoleOutput.setEditable(false);
-                consoleOutput.setWrapText(true);
-                consoleOutput.setPrefHeight(300);
-                consoleOutput.setStyle("-fx-font-family: monospace; -fx-control-inner-background: black; -fx-text-fill: white;");
-
                 PrintStream ps = new PrintStream(new ConsoleOutputStream(consoleOutput), true);
                 System.setOut(ps);
                 System.setErr(ps);
 
                 String results;
                 if (dynamicSimButton.isSelected()) {
-                    results = EnergySimulatorDynamic.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
+                    results = EnergySimulatorDynamic.runSimulation(numHosts, hostMIPS, hostRAM, numVMs,
+                            vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
                 } else {
-                    results = EnergySimulatorNormal.runSimulation(numHosts, hostMIPS, hostRAM, numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
+                    results = EnergySimulatorNormal.runSimulation(numHosts, hostMIPS, hostRAM, numVMs,
+                            vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
                 }
 
-                showResultsWindow(results, consoleOutput);
+                populateTableWithResults(results);
 
-                long usedVMs = results.lines().filter(line -> line.contains("SUCCESS")).count();
-                usedVMsLabel.setText("Used VMs: " + usedVMs + " out of " + numVMs);
+                double totalEnergy = resultsTable.getItems().stream()
+                        .mapToDouble(item -> {
+                            try { return Double.parseDouble(item.getEnergy()); }
+                            catch (NumberFormatException exception) { return 0; }
+                        })
+                        .sum();
 
-            } catch (NumberFormatException ex) {
+                summaryLabel.setText("Total Energy: " + String.format("%.2f", totalEnergy) + " | Algorithm: " + selectedAlgo);
+
+
+                summaryLabel.setText("Total Energy: " + totalEnergy + "\nAlgorithm: " + selectedAlgo);
+
+
+            } catch (Exception ex) {
                 showError("Please enter valid numeric values.");
             }
         });
 
-        int row = 0;
-        grid.add(modeLabel, 0, row);
-        grid.add(normalSimButton, 1, row);
-        grid.add(dynamicSimButton, 2, row++);
+        suggestButton.setOnAction(e -> {
+            try {
+                int numVMs = Integer.parseInt(vmsInput.getText());
+                int vmRAM = Integer.parseInt(vmRAMInput.getText());
+                int vmMIPS = Integer.parseInt(vmMIPSInput.getText());
+                int vmCores = Integer.parseInt(pesNumberInput.getText());
+                int hostRAM = Integer.parseInt(hostRAMInput.getText());
+                int hostMIPS = Integer.parseInt(hostMIPSInput.getText());
+                int hostCores = Integer.parseInt(hostCoresInput.getText());
 
-        grid.add(new Label("----- Hosts Configuration -----"), 0, row++, 2, 1);
-        grid.add(hostsLabel, 0, row);
-        grid.add(hostsInput, 1, row++);
-        grid.add(hostMIPSLabel, 0, row);
-        grid.add(hostMIPSInput, 1, row++);
-        grid.add(hostRAMLabel, 0, row);
-        grid.add(hostRAMInput, 1, row++);
-        grid.add(hostCoresLabel, 0, row);
-        grid.add(hostCoresInput, 1, row++);
+                int totalRAM = numVMs * vmRAM;
+                int totalMIPS = numVMs * vmMIPS;
+                int totalCores = numVMs * vmCores;
 
-        grid.add(new Label("----- VMs Configuration -----"), 0, row++, 2, 1);
-        grid.add(vmsLabel, 0, row);
-        grid.add(vmsInput, 1, row++);
-        grid.add(vmMIPSLabel, 0, row);
-        grid.add(vmMIPSInput, 1, row++);
-        grid.add(vmRAMLabel, 0, row);
-        grid.add(vmRAMInput, 1, row++);
-        grid.add(vmBWLabel, 0, row);
-        grid.add(vmBWInput, 1, row++);
-        grid.add(vmSizeLabel, 0, row);
-        grid.add(vmSizeInput, 1, row++);
-        grid.add(pesNumberLabel, 0, row);
-        grid.add(pesNumberInput, 1, row++);
+                int hostsByRAM = (int) Math.ceil((double) totalRAM / hostRAM);
+                int hostsByMIPS = (int) Math.ceil((double) totalMIPS / hostMIPS);
+                int hostsByCores = (int) Math.ceil((double) totalCores / hostCores);
 
-        grid.add(new Label("----- Cloudlets Configuration -----"), 0, row++, 2, 1);
-        grid.add(cloudletsLabel, 0, row);
-        grid.add(cloudletsInput, 1, row++);
+                int suggested = Math.max(Math.max(hostsByRAM, hostsByMIPS), hostsByCores);
+                hostsInput.setText(String.valueOf(suggested));
 
-        grid.add(new Label("----- Scheduling Algorithm -----"), 0, row++, 2, 1);
-        grid.add(algoLabel, 0, row);
-        grid.add(algoSelect, 1, row++);
+                showInfo("Suggested Resources", "Total RAM: " + totalRAM + " GB\nMIPS: " + totalMIPS + "\nCores: " + totalCores + "\n\nSuggested Hosts: " + suggested);
 
-        HBox buttonBox = new HBox(15, runButton, suggestButton, optimizeVMButton);
-        grid.add(buttonBox, 0, row++, 3, 1);
+            } catch (Exception ex) {
+                showError("Invalid numeric input.");
+            }
+        });
 
-        grid.add(usedVMsLabel, 0, row++, 2, 1);
+        ecoButton.setOnAction(e -> {
+            vmRAMInput.setText("2");
+            vmMIPSInput.setText("2500");
+            pesNumberInput.setText("1");
+            showInfo("Eco Settings", "Applied 2 GB RAM / 2500 MIPS / 1 core");
+        });
 
-        Scene scene = new Scene(grid, 1000, 650);
+        Scene scene = new Scene(mainLayout, 1100, 700);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Configuration Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void populateTableWithResults(String results) {
+        resultsTable.getItems().clear();
+        String[] lines = results.split("\n");
+        for (String line : lines) {
+            if (line.trim().isEmpty() || line.startsWith("-") || line.contains("Status") || !line.contains("SUCCESS"))
+                continue;
+            String[] parts = line.trim().split("\\s+");
+            if (parts.length >= 8) {
+                resultsTable.getItems().add(new ResultsTable(
+                        parts[0], parts[1], parts[2], parts[3],
+                        parts[4], parts[5], parts[6], parts[7]
+                ));
+            }
+        }
     }
 
-    private void showResultsWindow(String results, TextArea consoleArea) {
-        Stage resultsStage = new Stage();
-        resultsStage.setTitle("Simulation Results");
-        resultsStage.initModality(Modality.APPLICATION_MODAL);
-        resultsStage.setMinWidth(800);
-        resultsStage.setMinHeight(500);
+    private TextField styledField(String text, String style) {
+        TextField field = new TextField(text);
+        field.setStyle(style);
+        return field;
+    }
 
-        TextArea resultsArea = new TextArea(results);
-        resultsArea.setEditable(false);
-        resultsArea.setWrapText(true);
-        resultsArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
+    private HBox labeledBox(String labelText, Control control, String style) {
+        Label label = new Label(labelText);
+        label.setStyle(style);
+        return new HBox(10, label, control);
+    }
 
-        Button closeButton = new Button("Close");
-        closeButton.setStyle("-fx-background-color: #FF5733; -fx-text-fill: white; -fx-font-size: 14px;");
-        closeButton.setOnAction(e -> resultsStage.close());
+    private void showError(String msg) {
+        Alert a = new Alert(Alert.AlertType.ERROR, msg);
+        a.showAndWait();
+    }
 
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(20));
-        layout.getChildren().addAll(new Label("Simulation Output:"), consoleArea, new Label("Summary:"), resultsArea, closeButton);
-
-        Scene scene = new Scene(layout);
-        resultsStage.setScene(scene);
-        resultsStage.showAndWait();
+    private void showInfo(String title, String msg) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+
 
 
 ///doar tabelul
