@@ -44,6 +44,10 @@ public class MainGUI extends Application {
         TextField hostRAMInput = new TextField("32");
         hostRAMInput.setTooltip(new Tooltip("Total RAM per host in GB (1 GB = 1024 MB)"));
 
+        Label hostCoresLabel = new Label("Cores per Host:");
+        TextField hostCoresInput = new TextField("8");
+        hostCoresInput.setTooltip(new Tooltip("Number of cores available per host"));
+
         Label vmsLabel = new Label("Number of VMs:");
         TextField vmsInput = new TextField("40");
 
@@ -84,24 +88,20 @@ public class MainGUI extends Application {
                 int vmMIPS = Integer.parseInt(vmMIPSInput.getText());
                 int vmCores = Integer.parseInt(pesNumberInput.getText());
 
-                // Preset host capacities
-                int hostRAMGB = 32; // default 32 GB RAM per host
+                int hostRAMGB = Integer.parseInt(hostRAMInput.getText());
                 int hostMIPS = Integer.parseInt(hostMIPSInput.getText());
-                int hostCores = 8; // hardcoded cores per host (you can make it input later)
+                int hostCores = Integer.parseInt(hostCoresInput.getText());
 
-                // Total needed
                 int totalRAMGB = numVMs * vmRAMGB;
                 int totalMIPS = numVMs * vmMIPS;
                 int totalCores = numVMs * vmCores;
 
-                // Minimum hosts required for each constraint
                 int hostsByRAM = (int) Math.ceil((double) totalRAMGB / hostRAMGB);
                 int hostsByMIPS = (int) Math.ceil((double) totalMIPS / hostMIPS);
                 int hostsByCores = (int) Math.ceil((double) totalCores / hostCores);
 
                 int suggestedHosts = Math.max(Math.max(hostsByRAM, hostsByMIPS), hostsByCores);
 
-                // Set updated values
                 hostsInput.setText(String.valueOf(suggestedHosts));
                 hostRAMInput.setText(String.valueOf(hostRAMGB));
 
@@ -117,10 +117,9 @@ public class MainGUI extends Application {
                 );
                 alert.showAndWait();
             } catch (NumberFormatException ex) {
-                showError("Please enter valid numeric values for VM settings.");
+                showError("Please enter valid numeric values for VM and Host settings.");
             }
         });
-
 
         runButton.setOnAction(e -> {
             try {
@@ -181,6 +180,8 @@ public class MainGUI extends Application {
         grid.add(hostMIPSInput, 1, row++);
         grid.add(hostRAMLabel, 0, row);
         grid.add(hostRAMInput, 1, row++);
+        grid.add(hostCoresLabel, 0, row);
+        grid.add(hostCoresInput, 1, row++);
 
         grid.add(new Label("----- VMs Configuration -----"), 0, row++, 2, 1);
         grid.add(vmsLabel, 0, row);
@@ -207,7 +208,7 @@ public class MainGUI extends Application {
         grid.add(runButton, 0, row);
         grid.add(suggestButton, 1, row++);
 
-        Scene scene = new Scene(grid, 600, 600);
+        Scene scene = new Scene(grid, 650, 650);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
