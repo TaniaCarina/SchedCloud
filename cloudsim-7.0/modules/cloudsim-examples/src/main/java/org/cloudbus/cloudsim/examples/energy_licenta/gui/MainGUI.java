@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -14,6 +15,8 @@ import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNo
 import java.io.PrintStream;
 
 public class MainGUI extends Application {
+
+    private Label usedVMsLabel = new Label();
 
     @Override
     public void start(Stage primaryStage) {
@@ -31,7 +34,7 @@ public class MainGUI extends Application {
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(20));
         grid.setVgap(10);
-        grid.setHgap(10);
+        grid.setHgap(20);
         grid.setStyle("-fx-background-color: #f4f4f4; -fx-font-size: 14px;");
 
         Label hostsLabel = new Label("Number of Hosts:");
@@ -42,21 +45,18 @@ public class MainGUI extends Application {
 
         Label hostRAMLabel = new Label("Host RAM (GB):");
         TextField hostRAMInput = new TextField("32");
-        hostRAMInput.setTooltip(new Tooltip("Total RAM per host in GB (1 GB = 1024 MB)"));
 
         Label hostCoresLabel = new Label("Cores per Host:");
         TextField hostCoresInput = new TextField("8");
-        hostCoresInput.setTooltip(new Tooltip("Number of cores available per host"));
 
         Label vmsLabel = new Label("Number of VMs:");
         TextField vmsInput = new TextField("40");
 
         Label vmMIPSLabel = new Label("VM MIPS:");
-        TextField vmMIPSInput = new TextField("2500");
+        TextField vmMIPSInput = new TextField("1000");
 
         Label vmRAMLabel = new Label("VM RAM (GB):");
-        TextField vmRAMInput = new TextField("2");
-        vmRAMInput.setTooltip(new Tooltip("RAM per VM in GB (1 GB = 1024 MB)"));
+        TextField vmRAMInput = new TextField("1");
 
         Label vmBWLabel = new Label("VM Bandwidth (MB/s):");
         TextField vmBWInput = new TextField("1000");
@@ -67,7 +67,7 @@ public class MainGUI extends Application {
         Label pesNumberLabel = new Label("Cores per VM:");
         TextField pesNumberInput = new TextField("1");
 
-        Label cloudletsLabel = new Label("Number of Cloudlets:");
+        Label cloudletsLabel = new Label("Number of Cloudlets (Tasks):");
         TextField cloudletsInput = new TextField("50");
 
         Label algoLabel = new Label("Scheduling Algorithm:");
@@ -80,6 +80,21 @@ public class MainGUI extends Application {
 
         Button suggestButton = new Button("Suggest Resources");
         suggestButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px;");
+
+        Button optimizeVMButton = new Button("Eco Settings");
+        optimizeVMButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 14px;");
+
+        optimizeVMButton.setOnAction(e -> {
+            vmRAMInput.setText("2");
+            vmMIPSInput.setText("2500");
+            pesNumberInput.setText("1");
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("VM Optimization");
+            alert.setHeaderText("Eco Configuration Applied");
+            alert.setContentText("RAM set to 2 GB, MIPS set to 2500, cores set to 1\nThis configuration is energy-efficient.");
+            alert.showAndWait();
+        });
 
         suggestButton.setOnAction(e -> {
             try {
@@ -163,6 +178,9 @@ public class MainGUI extends Application {
 
                 showResultsWindow(results, consoleOutput);
 
+                long usedVMs = results.lines().filter(line -> line.contains("SUCCESS")).count();
+                usedVMsLabel.setText("Used VMs: " + usedVMs + " out of " + numVMs);
+
             } catch (NumberFormatException ex) {
                 showError("Please enter valid numeric values.");
             }
@@ -205,10 +223,12 @@ public class MainGUI extends Application {
         grid.add(algoLabel, 0, row);
         grid.add(algoSelect, 1, row++);
 
-        grid.add(runButton, 0, row);
-        grid.add(suggestButton, 1, row++);
+        HBox buttonBox = new HBox(15, runButton, suggestButton, optimizeVMButton);
+        grid.add(buttonBox, 0, row++, 3, 1);
 
-        Scene scene = new Scene(grid, 650, 650);
+        grid.add(usedVMsLabel, 0, row++, 2, 1);
+
+        Scene scene = new Scene(grid, 1000, 650);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -225,7 +245,7 @@ public class MainGUI extends Application {
         Stage resultsStage = new Stage();
         resultsStage.setTitle("Simulation Results");
         resultsStage.initModality(Modality.APPLICATION_MODAL);
-        resultsStage.setMinWidth(700);
+        resultsStage.setMinWidth(800);
         resultsStage.setMinHeight(500);
 
         TextArea resultsArea = new TextArea(results);
@@ -250,8 +270,6 @@ public class MainGUI extends Application {
         launch(args);
     }
 }
-
-
 
 
 ///doar tabelul
