@@ -1,14 +1,24 @@
 package org.cloudbus.cloudsim.examples.energy_licenta.gui;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.embed.swing.SwingFXUtils;
+
+import javafx.util.Duration;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNormal;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 
 public class MainGUI extends Application {
@@ -167,7 +177,16 @@ public class MainGUI extends Application {
                         summaryLabel
                 );
 
-                showEnergyChartWindow(chart);
+                showEnergyChartWindow(
+                        chart,
+                        selectedAlgo,
+                        dynamicSimButton.isSelected(),
+                        numHosts,
+                        numVMs,
+                        numCloudlets,
+                        totalEnergy
+                );
+
 
 
             } catch (Exception ex) {
@@ -281,19 +300,71 @@ public class MainGUI extends Application {
         a.showAndWait();
     }
 
-    private void showEnergyChartWindow(javafx.scene.chart.BarChart<String, Number> chart) {
+    private void showEnergyChartWindow(
+            javafx.scene.chart.BarChart<String, Number> chart,
+            String algorithm,
+            boolean isDynamic,
+            int numHosts,
+            int numVMs,
+            int numCloudlets,
+            double totalEnergy
+    ) {
         chart.setStyle("-fx-bar-fill: #ec6ba1;");
+        chart.setPrefSize(850, 500);
 
-        VBox layout = new VBox(10);
+        Label chartTitle = new Label("Energy Consumption Chart:");
+        chartTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0D1B2A;");
+
+        Label leftInfo = new Label(
+                "Algorithm: " + algorithm +
+                        "\n\nDynamic Scaling: " + (isDynamic ? "Enabled" : "Disabled") +
+                        "\n\nTotal Energy: " + String.format("%.2f", totalEnergy)
+        );
+        leftInfo.setStyle("-fx-font-size: 16px; -fx-text-fill: #0D1B2A; -fx-font-weight: bold;");
+
+        Label rightInfo = new Label(
+                "Number of Hosts: " + numHosts +
+                        "\n\nNumber of VMs: " + numVMs +
+                        "\n\nNumber of Cloudlets: " + numCloudlets
+        );
+        rightInfo.setStyle("-fx-font-size: 16px; -fx-text-fill: #0D1B2A; -fx-font-weight: bold;");
+
+        HBox infoBox = new HBox(150);
+        infoBox.getChildren().addAll(leftInfo, rightInfo);
+        infoBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        infoBox.setPadding(new Insets(10));
+        infoBox.setAlignment(javafx.geometry.Pos.CENTER);
+
+        VBox layout = new VBox(20);
         layout.setPadding(new Insets(20));
         layout.setStyle("-fx-background-color: #e0eaf5;");
-        layout.getChildren().addAll(new Label("Energy Consumption Chart:"), chart);
+        layout.getChildren().addAll(chartTitle, chart, infoBox);
 
-        Scene scene = new Scene(layout, 800, 650);
+        Scene scene = new Scene(layout, 1020, 800);
         Stage chartStage = new Stage();
         chartStage.setTitle("Energy Chart");
         chartStage.setScene(scene);
         chartStage.show();
+
+       // WritableImage image = layout.snapshot(new javafx.scene.SnapshotParameters(), null);
+
+        String scaling = isDynamic ? "DS" : "NDS"; // DS = dynamic scaling, NDS = no dynamic scaling
+        String filename = String.format("chart_%s_%dVM_%dCL_%s.png", scaling, numVMs, numCloudlets, algorithm.replaceAll("\\s+", ""));
+
+        PauseTransition delay = new PauseTransition(Duration.seconds(0.5));
+        delay.setOnFinished(event -> {
+            WritableImage image = layout.snapshot(new SnapshotParameters(), null);
+            File file = new File(filename);
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+                System.out.println("Chart saved to: " + file.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        delay.play();
+
+
     }
 
 
