@@ -115,7 +115,7 @@ public class MainGUI extends Application {
                 resultsTable
         );
 
-        
+
         runButton.setOnAction(e -> {
             try {
                 int numHosts = Integer.parseInt(hostsInput.getText());
@@ -145,9 +145,6 @@ public class MainGUI extends Application {
 
                 populateTableWithResults(results);
 
-
-
-
                 double totalEnergy = resultsTable.getItems().stream()
                         .mapToDouble(item -> {
                             try { return Double.parseDouble(item.getEnergy()); }
@@ -161,16 +158,16 @@ public class MainGUI extends Application {
                 summaryLabel.setText("Total Energy: " + totalEnergy + "\nAlgorithm: " + selectedAlgo);
 
                 javafx.scene.chart.BarChart<String, Number> chart = createEnergyChart();
-                VBox summaryBox = new VBox(10, summaryLabel, chart);
 
                 rightPane.getChildren().setAll(
                         outputLabel,
                         consoleOutput,
                         summaryTitle,
                         resultsTable,
-                        summaryBox
+                        summaryLabel
                 );
 
+                showEnergyChartWindow(chart);
 
 
             } catch (Exception ex) {
@@ -284,40 +281,27 @@ public class MainGUI extends Application {
         a.showAndWait();
     }
 
+    private void showEnergyChartWindow(javafx.scene.chart.BarChart<String, Number> chart) {
+        chart.setStyle("-fx-bar-fill: #ec6ba1;");
+
+        VBox layout = new VBox(10);
+        layout.setPadding(new Insets(20));
+        layout.setStyle("-fx-background-color: #e0eaf5;");
+        layout.getChildren().addAll(new Label("Energy Consumption Chart:"), chart);
+
+        Scene scene = new Scene(layout, 800, 650);
+        Stage chartStage = new Stage();
+        chartStage.setTitle("Energy Chart");
+        chartStage.setScene(scene);
+        chartStage.show();
+    }
+
+
+
     public static void main(String[] args) {
         launch(args);
     }
 }
-
-
-
-///doar tabelul
-//    private void showResultsWindow(String results) {
-//        Stage resultsStage = new Stage();
-//        resultsStage.setTitle("Simulation Results");
-//        resultsStage.initModality(Modality.APPLICATION_MODAL);
-//        resultsStage.setMinWidth(600);
-//        resultsStage.setMinHeight(400);
-//
-//        TextArea resultsArea = new TextArea(results);
-//        resultsArea.setEditable(false);
-//        resultsArea.setWrapText(true);
-//        resultsArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
-//
-//        Button closeButton = new Button("Close");
-//        closeButton.setStyle("-fx-background-color: #FF5733; -fx-text-fill: white; -fx-font-size: 14px;");
-//        closeButton.setOnAction(e -> resultsStage.close());
-//
-//        VBox layout = new VBox(10);
-//        layout.setPadding(new Insets(20));
-//        layout.getChildren().addAll(new Label("Simulation Results:"), resultsArea, closeButton);
-//
-//        Scene scene = new Scene(layout, 600, 400);
-//        resultsStage.setScene(scene);
-//        resultsStage.showAndWait();
-//    }
-
-
 
 
 
