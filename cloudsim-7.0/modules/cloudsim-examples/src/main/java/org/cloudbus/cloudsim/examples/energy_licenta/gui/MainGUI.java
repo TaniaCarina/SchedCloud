@@ -107,15 +107,15 @@ public class MainGUI extends Application {
         summaryTitle.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
 
 
-        rightPane.getChildren().addAll(
+
+        rightPane.getChildren().setAll(
                 outputLabel,
                 consoleOutput,
                 summaryTitle,
-                resultsTable,
-                summaryLabel
+                resultsTable
         );
 
-
+        
         runButton.setOnAction(e -> {
             try {
                 int numHosts = Integer.parseInt(hostsInput.getText());
@@ -145,6 +145,9 @@ public class MainGUI extends Application {
 
                 populateTableWithResults(results);
 
+
+
+
                 double totalEnergy = resultsTable.getItems().stream()
                         .mapToDouble(item -> {
                             try { return Double.parseDouble(item.getEnergy()); }
@@ -156,6 +159,18 @@ public class MainGUI extends Application {
 
 
                 summaryLabel.setText("Total Energy: " + totalEnergy + "\nAlgorithm: " + selectedAlgo);
+
+                javafx.scene.chart.BarChart<String, Number> chart = createEnergyChart();
+                VBox summaryBox = new VBox(10, summaryLabel, chart);
+
+                rightPane.getChildren().setAll(
+                        outputLabel,
+                        consoleOutput,
+                        summaryTitle,
+                        resultsTable,
+                        summaryBox
+                );
+
 
 
             } catch (Exception ex) {
@@ -218,6 +233,31 @@ public class MainGUI extends Application {
             }
         }
     }
+
+    private javafx.scene.chart.BarChart<String, Number> createEnergyChart() {
+        javafx.scene.chart.CategoryAxis xAxis = new javafx.scene.chart.CategoryAxis();
+        javafx.scene.chart.NumberAxis yAxis = new javafx.scene.chart.NumberAxis();
+        xAxis.setLabel("CloudletID");
+        yAxis.setLabel("Energy");
+
+        javafx.scene.chart.BarChart<String, Number> chart = new javafx.scene.chart.BarChart<>(xAxis, yAxis);
+        chart.setTitle("Energy Consumption per Cloudlet");
+        chart.setPrefHeight(250);
+        chart.setLegendVisible(false);
+
+        javafx.scene.chart.XYChart.Series<String, Number> series = new javafx.scene.chart.XYChart.Series<>();
+
+        for (ResultsTable row : resultsTable.getItems()) {
+            try {
+                double energy = Double.parseDouble(row.getEnergy());
+                series.getData().add(new javafx.scene.chart.XYChart.Data<>(row.getCloudletId(), energy));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        chart.getData().add(series);
+        return chart;
+    }
+
 
     private TextField styledField(String text, String style) {
         TextField field = new TextField(text);
