@@ -2,12 +2,14 @@ package org.cloudbus.cloudsim.examples.energy_licenta.simulator;
 
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.core.GuestEntity;
-import org.cloudbus.cloudsim.core.HostEntity;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.ACO;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.FCFS;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.RoundRobin;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.SchedulingAlgorithm;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.*;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.basic.FCFS;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.basic.RandomScheduler;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.basic.RoundRobin;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.heuristic.*;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.metaheuristic.ACO;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.metaheuristic.Genetic;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.metaheuristic.PSO;
 
 import java.util.*;
 
@@ -41,8 +43,8 @@ public class EnergySimulatorNormal {
             // Alegere algoritm de scheduling
             SchedulingAlgorithm algorithm;
             switch (algorithmName) {
-                case "RoundRobin":
-                    algorithm = new RoundRobin();
+                case "MinLengthRoundRobin":
+                    algorithm = new MinLengthRoundRobin();
                     break;
                 case "ACO":
                     algorithm = new ACO();
@@ -50,8 +52,22 @@ public class EnergySimulatorNormal {
                 case "FCFS":
                     algorithm = new FCFS();
                     break;
+                case "RoundRobin":
+                    algorithm = new RoundRobin(); break;
+                case "Random":
+                    algorithm = new RandomScheduler(); break;
+                case "LJF":
+                    algorithm = new LJF(); break;
+                case "MinMin":
+                    algorithm = new MinMin(); break;
+                case "MaxMin":
+                    algorithm = new MaxMin(); break;
+                case "PSO":
+                    algorithm = new PSO(); break;
+                case "Genetic":
+                    algorithm = new Genetic(); break;
                 default:
-                    algorithm = new RoundRobin();
+                    algorithm = new MinLengthRoundRobin();
             }
 
             // Creare VM-uri fara scalare dinamica

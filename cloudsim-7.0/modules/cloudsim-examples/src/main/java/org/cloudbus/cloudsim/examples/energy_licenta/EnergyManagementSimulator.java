@@ -1,20 +1,5 @@
 package org.cloudbus.cloudsim.examples.energy_licenta;
 
-import org.cloudbus.cloudsim.*;
-import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.ACO;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.FCFS;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.RoundRobin;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.SchedulingAlgorithm;
-import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
-import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
-import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Scanner;
-
 public class EnergyManagementSimulator {
 //    public static void main(String[] args) {
 //

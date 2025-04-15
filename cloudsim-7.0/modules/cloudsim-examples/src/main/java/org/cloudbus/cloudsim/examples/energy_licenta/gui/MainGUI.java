@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.chart.BarChart;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
@@ -23,7 +24,7 @@ import java.io.PrintStream;
 
 public class MainGUI extends Application {
 
-    private final TextArea consoleOutput = new TextArea();
+    //private final TextArea consoleOutput = new TextArea();
     private TableView<ResultsTable> resultsTable = new TableView<>();
     private Label summaryLabel = new Label("Total Energy: 0 \nAlgorithm: -");
 
@@ -70,8 +71,8 @@ public class MainGUI extends Application {
         TextField cloudletsInput = styledField("50", inputStyle);
 
         ComboBox<String> algoSelect = new ComboBox<>();
-        algoSelect.getItems().addAll("RoundRobin", "ACO", "FCFS");
-        algoSelect.setValue("RoundRobin");
+        algoSelect.getItems().addAll("MinLengthRoundRobin", "RoundRobin", "ACO", "FCFS", "Random", "LJF", "MinMin", "MaxMin", "PSO", "Genetic");
+        algoSelect.setValue("MinLengthRoundRobin");
 
         Button runButton = new Button("Run Simulation");
         Button suggestButton = new Button("Suggest Resources");
@@ -98,20 +99,20 @@ public class MainGUI extends Application {
                 new HBox(10, runButton, suggestButton, ecoButton)
         );
 
-        consoleOutput.setEditable(false);
-        consoleOutput.setPrefHeight(300);
-        consoleOutput.setStyle("-fx-font-family: Consolas; -fx-control-inner-background: #0D1B2A; -fx-text-fill: white;");
+        //consoleOutput.setEditable(false);
+        //consoleOutput.setPrefHeight(300);
+       // consoleOutput.setStyle("-fx-font-family: Consolas; -fx-control-inner-background: #0D1B2A; -fx-text-fill: white;");
 
         resultsTable = ResultsTable.buildTable();
-        resultsTable.setPrefHeight(200);
+        resultsTable.setPrefHeight(400);
         resultsTable.setMinWidth(600);
         resultsTable.setMaxWidth(600);
 
 
         resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        Label outputLabel = new Label("Simulation Output:");
-        outputLabel.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
+//        Label outputLabel = new Label("Simulation Output:");
+//        outputLabel.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         Label summaryTitle = new Label("Summary:");
         summaryTitle.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
@@ -119,8 +120,8 @@ public class MainGUI extends Application {
 
 
         rightPane.getChildren().setAll(
-                outputLabel,
-                consoleOutput,
+               // outputLabel,
+               // consoleOutput,
                 summaryTitle,
                 resultsTable
         );
@@ -140,11 +141,14 @@ public class MainGUI extends Application {
                 int numCloudlets = Integer.parseInt(cloudletsInput.getText());
                 String selectedAlgo = algoSelect.getValue();
 
-                PrintStream ps = new PrintStream(new ConsoleOutputStream(consoleOutput), true);
-                System.setOut(ps);
-                System.setErr(ps);
+               // PrintStream ps = new PrintStream(new ConsoleOutputStream(consoleOutput), true);
+               //System.setOut(ps);
+               //System.setErr(ps);
 
                 String results;
+
+                long startTime = System.currentTimeMillis();
+
                 if (dynamicSimButton.isSelected()) {
                     results = EnergySimulatorDynamic.runSimulation(numHosts, hostMIPS, hostRAM, numVMs,
                             vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
@@ -155,6 +159,17 @@ public class MainGUI extends Application {
 
                 populateTableWithResults(results);
 
+                long endTime = System.currentTimeMillis();
+                double realExecTime = (endTime - startTime) / 1000.0;
+
+                double totalExecTime = resultsTable.getItems().stream()
+                        .mapToDouble(item -> {
+                            try { return Double.parseDouble(item.getExecTime()); }
+                            catch (NumberFormatException ex) { return 0; }
+                        })
+                        .sum();
+
+
                 double totalEnergy = resultsTable.getItems().stream()
                         .mapToDouble(item -> {
                             try { return Double.parseDouble(item.getEnergy()); }
@@ -162,16 +177,18 @@ public class MainGUI extends Application {
                         })
                         .sum();
 
-                summaryLabel.setText("Total Energy: " + String.format("%.2f", totalEnergy) + " | Algorithm: " + selectedAlgo);
-
-
-                summaryLabel.setText("Total Energy: " + totalEnergy + "\nAlgorithm: " + selectedAlgo);
+                summaryLabel.setText(
+                        "Total Energy: " + String.format("%.2f", totalEnergy) +
+                                "\nAlgorithm: " + selectedAlgo +
+                                "\nExecution Time (real): " + String.format("%.2f", realExecTime) + " sec" +
+                                "\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec"
+                );
 
                 javafx.scene.chart.BarChart<String, Number> chart = createEnergyChart();
 
                 rightPane.getChildren().setAll(
-                        outputLabel,
-                        consoleOutput,
+                       // outputLabel,
+                       // consoleOutput,
                         summaryTitle,
                         resultsTable,
                         summaryLabel
@@ -184,7 +201,9 @@ public class MainGUI extends Application {
                         numHosts,
                         numVMs,
                         numCloudlets,
-                        totalEnergy
+                        totalEnergy,
+                        realExecTime,
+                        totalExecTime
                 );
 
 
@@ -300,15 +319,15 @@ public class MainGUI extends Application {
         a.showAndWait();
     }
 
-    private void showEnergyChartWindow(
-            javafx.scene.chart.BarChart<String, Number> chart,
-            String algorithm,
-            boolean isDynamic,
+    private void showEnergyChartWindow(BarChart<String, Number> chart, String algorithm, boolean isDynamic,
             int numHosts,
             int numVMs,
             int numCloudlets,
-            double totalEnergy
-    ) {
+            double totalEnergy,
+            double realExecTime,
+            double totalExecTime
+    )
+    {
         chart.setStyle("-fx-bar-fill: #ec6ba1;");
         chart.setPrefSize(850, 500);
 
@@ -318,14 +337,17 @@ public class MainGUI extends Application {
         Label leftInfo = new Label(
                 "Algorithm: " + algorithm +
                         "\n\nDynamic Scaling: " + (isDynamic ? "Enabled" : "Disabled") +
-                        "\n\nTotal Energy: " + String.format("%.2f", totalEnergy)
+                        "\n\nTotal Energy: " + String.format("%.2f", totalEnergy) +
+                        "\n\nExecution Time (real): " + String.format("%.2f", realExecTime) + " sec"
+
         );
         leftInfo.setStyle("-fx-font-size: 16px; -fx-text-fill: #0D1B2A; -fx-font-weight: bold;");
 
         Label rightInfo = new Label(
                 "Number of Hosts: " + numHosts +
                         "\n\nNumber of VMs: " + numVMs +
-                        "\n\nNumber of Cloudlets: " + numCloudlets
+                        "\n\nNumber of Cloudlets: " + numCloudlets +
+                        "\n\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec"
         );
         rightInfo.setStyle("-fx-font-size: 16px; -fx-text-fill: #0D1B2A; -fx-font-weight: bold;");
 
@@ -346,7 +368,6 @@ public class MainGUI extends Application {
         chartStage.setScene(scene);
         chartStage.show();
 
-       // WritableImage image = layout.snapshot(new javafx.scene.SnapshotParameters(), null);
 
         String scaling = isDynamic ? "DS" : "NDS"; // DS = dynamic scaling, NDS = no dynamic scaling
         String filename = String.format("chart_%s_%dVM_%dCL_%s.png", scaling, numVMs, numCloudlets, algorithm.replaceAll("\\s+", ""));
@@ -363,7 +384,6 @@ public class MainGUI extends Application {
             }
         });
         delay.play();
-
 
     }
 
