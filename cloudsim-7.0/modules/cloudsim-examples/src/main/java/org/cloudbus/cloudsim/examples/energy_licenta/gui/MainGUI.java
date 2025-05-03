@@ -2,11 +2,9 @@ package org.cloudbus.cloudsim.examples.energy_licenta.gui;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
@@ -15,31 +13,27 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.embed.swing.SwingFXUtils;
-
 import javafx.util.Duration;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.DatabaseManager;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SaveSimulation;
+import org.cloudbus.cloudsim.examples.energy_licenta.db.SchemaInitializer;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SimulationResult;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNormal;
-import org.cloudbus.cloudsim.examples.energy_licenta.db.SchemaInitializer;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.sql.*;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
 public class MainGUI extends Application {
 
-    //private final TextArea consoleOutput = new TextArea();
     private TableView<ResultsTable> resultsTable = new TableView<>();
     private Label summaryLabel = new Label("Total Energy: 0 \nAlgorithm: -");
     private String lastAlgorithm = "";
@@ -130,10 +124,6 @@ public class MainGUI extends Application {
 
         );
 
-        //consoleOutput.setEditable(false);
-        //consoleOutput.setPrefHeight(300);
-       // consoleOutput.setStyle("-fx-font-family: Consolas; -fx-control-inner-background: #0D1B2A; -fx-text-fill: white;");
-
         resultsTable = ResultsTable.buildTable();
         resultsTable.setPrefHeight(400);
         resultsTable.setMinWidth(600);
@@ -142,17 +132,11 @@ public class MainGUI extends Application {
 
         resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-//        Label outputLabel = new Label("Simulation Output:");
-//        outputLabel.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
-
         Label summaryTitle = new Label("Summary:");
         summaryTitle.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
 
 
-
         rightPane.getChildren().setAll(
-               // outputLabel,
-               // consoleOutput,
                 summaryTitle,
                 resultsTable
         );
@@ -171,10 +155,6 @@ public class MainGUI extends Application {
                 int pesNumber = Integer.parseInt(pesNumberInput.getText());
                 int numCloudlets = Integer.parseInt(cloudletsInput.getText());
                 String selectedAlgo = algoSelect.getValue();
-
-               // PrintStream ps = new PrintStream(new ConsoleOutputStream(consoleOutput), true);
-               //System.setOut(ps);
-               //System.setErr(ps);
 
                 String results;
 
@@ -228,8 +208,6 @@ public class MainGUI extends Application {
                 javafx.scene.chart.BarChart<String, Number> chart = createEnergyChart();
 
                 rightPane.getChildren().setAll(
-                       // outputLabel,
-                       // consoleOutput,
                         summaryTitle,
                         resultsTable,
                         summaryLabel
@@ -246,8 +224,6 @@ public class MainGUI extends Application {
                         realExecTime,
                         totalExecTime
                 );
-
-
 
             } catch (Exception ex) {
                 showError("Please enter valid numeric values.");
@@ -309,7 +285,6 @@ public class MainGUI extends Application {
                     lastTotalExecTime
             );
 
-            // Salvează rezultatele fiecărui cloudlet
             SaveSimulation.saveCloudlets(
                     resultsTable.getItems(),
                     simulationId,
@@ -368,7 +343,6 @@ public class MainGUI extends Application {
         return chart;
     }
 
-
     private TextField styledField(String text, String style) {
         TextField field = new TextField(text);
         field.setStyle(style);
@@ -399,6 +373,7 @@ public class MainGUI extends Application {
         stage.setTitle("Saved Simulations");
 
         TableView<SimulationSummaryLoad> table = new TableView<>();
+
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         TableColumn<SimulationSummaryLoad, String> idCol = new TableColumn<>("ID");
@@ -467,8 +442,6 @@ public class MainGUI extends Application {
                             cloudletExecTime
                     );
                 });
-
-
             }
 
             @Override
@@ -481,8 +454,6 @@ public class MainGUI extends Application {
                 }
             }
         });
-
-
 
         moreCol.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Show More");
@@ -665,7 +636,6 @@ public class MainGUI extends Application {
         });
         delay.play();
     }
-
 
 
     public static void main(String[] args) {
