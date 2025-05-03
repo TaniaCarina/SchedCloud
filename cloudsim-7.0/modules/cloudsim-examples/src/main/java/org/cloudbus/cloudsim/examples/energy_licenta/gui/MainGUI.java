@@ -3,34 +3,56 @@ package org.cloudbus.cloudsim.examples.energy_licenta.gui;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.embed.swing.SwingFXUtils;
 
 import javafx.util.Duration;
+import org.cloudbus.cloudsim.examples.energy_licenta.db.DatabaseManager;
+import org.cloudbus.cloudsim.examples.energy_licenta.db.SaveSimulation;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNormal;
+import org.cloudbus.cloudsim.examples.energy_licenta.db.SchemaInitializer;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.sql.*;
+import java.util.UUID;
 
 public class MainGUI extends Application {
 
     //private final TextArea consoleOutput = new TextArea();
     private TableView<ResultsTable> resultsTable = new TableView<>();
     private Label summaryLabel = new Label("Total Energy: 0 \nAlgorithm: -");
+    private String lastAlgorithm = "";
+    private boolean lastDynamicScaling = false;
+    private int lastNumHosts, lastNumVMs, lastNumCloudlets;
+    private double lastTotalEnergy, lastRealExecTime, lastTotalExecTime;
+
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("CloudSim7G - Energy Simulation");
+
+        SchemaInitializer.createTableIfNotExists();
+        SchemaInitializer.createSummaryTableIfNotExists();
+
 
         VBox leftPane = new VBox(12);
         leftPane.setPadding(new Insets(20));
@@ -77,10 +99,15 @@ public class MainGUI extends Application {
         Button runButton = new Button("Run Simulation");
         Button suggestButton = new Button("Suggest Resources");
         Button ecoButton = new Button("Eco Settings");
+        Button saveButton = new Button("Save Results");
+        Button loadButton = new Button("Load Results");
+
+
 
         runButton.setStyle("-fx-background-color: #1e81b0; -fx-text-fill: white;");
         suggestButton.setStyle("-fx-background-color: #5193c7; -fx-text-fill: white;");
         ecoButton.setStyle("-fx-background-color: #88c0d0; -fx-text-fill: #0D1B2A;");
+        saveButton.setStyle("-fx-background-color: #b0c4de; -fx-text-fill: #0D1B2A;");
 
         leftPane.getChildren().addAll(
                 modeLabel, normalSimButton, dynamicSimButton,
@@ -96,7 +123,9 @@ public class MainGUI extends Application {
                 labeledBox("Cores per VM:", pesNumberInput, labelStyle),
                 labeledBox("Number of Cloudlets (Tasks):", cloudletsInput, labelStyle),
                 labeledBox("Scheduling Algorithm:", algoSelect, labelStyle),
-                new HBox(10, runButton, suggestButton, ecoButton)
+                new HBox(10, runButton, suggestButton, ecoButton),
+                new HBox(10, saveButton, loadButton)
+
         );
 
         //consoleOutput.setEditable(false);
@@ -184,6 +213,18 @@ public class MainGUI extends Application {
                                 "\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec"
                 );
 
+                // Memoram datele ultimei simulari
+                lastAlgorithm = selectedAlgo;
+                lastDynamicScaling = dynamicSimButton.isSelected();
+                lastNumHosts = numHosts;
+                lastNumVMs = numVMs;
+                lastNumCloudlets = numCloudlets;
+                lastTotalEnergy = totalEnergy;
+                lastRealExecTime = realExecTime;
+                lastTotalExecTime = totalExecTime;
+                String simulationId = UUID.randomUUID().toString();
+
+
                 javafx.scene.chart.BarChart<String, Number> chart = createEnergyChart();
 
                 rightPane.getChildren().setAll(
@@ -247,6 +288,40 @@ public class MainGUI extends Application {
             pesNumberInput.setText("1");
             showInfo("Eco Settings", "Applied 2 GB RAM / 2500 MIPS / 1 core");
         });
+
+        saveButton.setOnAction(e -> {
+            if (lastAlgorithm == null || lastAlgorithm.isEmpty()) {
+                showError("Run a simulation first before saving.");
+                return;
+            }
+
+            String simulationId = UUID.randomUUID().toString();
+
+            SaveSimulation.saveSummary(
+                    simulationId,
+                    lastAlgorithm,
+                    lastDynamicScaling,
+                    lastNumHosts,
+                    lastNumVMs,
+                    lastNumCloudlets,
+                    lastTotalEnergy,
+                    lastRealExecTime,
+                    lastTotalExecTime
+            );
+
+            // Salvează rezultatele fiecărui cloudlet
+            SaveSimulation.saveCloudlets(
+                    resultsTable.getItems(),
+                    simulationId,
+                    lastAlgorithm,
+                    lastDynamicScaling
+            );
+
+            showInfo("Success", "Simulation results saved to the database.");
+        });
+
+        loadButton.setOnAction(e -> showSummaryTableWindow());
+
 
         Scene scene = new Scene(mainLayout, 1100, 700);
         primaryStage.setScene(scene);
@@ -319,6 +394,127 @@ public class MainGUI extends Application {
         a.showAndWait();
     }
 
+    private void showSummaryTableWindow() {
+        Stage stage = new Stage();
+        stage.setTitle("Saved Simulations");
+
+        TableView<SimulationSummaryLoad> table = new TableView<>();
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        TableColumn<SimulationSummaryLoad, Integer> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
+
+        TableColumn<SimulationSummaryLoad, String> algoCol = new TableColumn<>("Algorithm");
+        algoCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAlgorithm()));
+
+        TableColumn<SimulationSummaryLoad, Boolean> scalingCol = new TableColumn<>("Dynamic Scaling");
+        scalingCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().isDynamicScaling()));
+
+        TableColumn<SimulationSummaryLoad, Integer> hostsCol = new TableColumn<>("Hosts");
+        hostsCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getHosts()));
+
+        TableColumn<SimulationSummaryLoad, Integer> vmsCol = new TableColumn<>("VMs");
+        vmsCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getVms()));
+
+        TableColumn<SimulationSummaryLoad, Integer> clCol = new TableColumn<>("Cloudlets");
+        clCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCloudlets()));
+
+        TableColumn<SimulationSummaryLoad, Double> energyCol = new TableColumn<>("Energy");
+        energyCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getTotalEnergy()));
+
+        TableColumn<SimulationSummaryLoad, Double> realTimeCol = new TableColumn<>("Real Exec Time");
+        realTimeCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getRealExecTime()));
+
+        TableColumn<SimulationSummaryLoad, Double> cloudletTimeCol = new TableColumn<>("Cloudlet Exec Time");
+        cloudletTimeCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getCloudletExecTime()));
+
+        TableColumn<SimulationSummaryLoad, Timestamp> timeCol = new TableColumn<>("Timestamp");
+        timeCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getSimTimestamp()));
+
+        TableColumn<SimulationSummaryLoad, Void> moreCol = new TableColumn<>("Details");
+
+        moreCol.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button("Show More");
+
+            {
+                btn.setOnAction(e -> {
+                    SimulationSummaryLoad summary = getTableView().getItems().get(getIndex());
+                    showCloudletResultsWindow(summary.getId());
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(btn);
+                }
+            }
+        });
+
+
+        table.getColumns().addAll(
+                idCol, algoCol, scalingCol, hostsCol, vmsCol, clCol,
+                energyCol, realTimeCol, cloudletTimeCol, timeCol, moreCol
+        );
+
+        table.getItems().addAll(DatabaseManager.getAllSimulationSummaries());
+
+        VBox layout = new VBox(10, new Label("Saved Simulations:"), table);
+        layout.setPadding(new Insets(20));
+
+        Scene scene = new Scene(layout, 1050, 500);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+
+    private void showCloudletResultsWindow(int summaryId) {
+        Stage stage = new Stage();
+        stage.setTitle("Simulation Results for Summary ID: " + summaryId);
+
+        TableView<ResultsTable> table = ResultsTable.buildTable();
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // Query results from DB
+        String sql = "SELECT * FROM simulation_results WHERE summary_id = ?";
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, summaryId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                ResultsTable row = new ResultsTable(
+                        rs.getString("cloudlet_id"),
+                        rs.getString("status"),
+                        rs.getString("vm_id"),
+                        rs.getString("host_id"),
+                        String.valueOf(rs.getDouble("start_time")),
+                        String.valueOf(rs.getDouble("finish_time")),
+                        String.valueOf(rs.getDouble("exec_time")),
+                        String.valueOf(rs.getDouble("energy"))
+                );
+                table.getItems().add(row);
+            }
+
+        } catch (SQLException e) {
+            showError("Error loading cloudlet results: " + e.getMessage());
+            return;
+        }
+
+        VBox layout = new VBox(10, new Label("Cloudlet Results for Simulation ID: " + summaryId), table);
+        layout.setPadding(new Insets(20));
+
+        Scene scene = new Scene(layout, 900, 400);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+
     private void showEnergyChartWindow(BarChart<String, Number> chart, String algorithm, boolean isDynamic,
             int numHosts,
             int numVMs,
@@ -384,7 +580,6 @@ public class MainGUI extends Application {
             }
         });
         delay.play();
-
     }
 
 
