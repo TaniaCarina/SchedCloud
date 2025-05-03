@@ -224,8 +224,6 @@ public class MainGUI extends Application {
                 lastTotalEnergy = totalEnergy;
                 lastRealExecTime = realExecTime;
                 lastTotalExecTime = totalExecTime;
-                String simulationId = UUID.randomUUID().toString();
-
 
                 javafx.scene.chart.BarChart<String, Number> chart = createEnergyChart();
 
@@ -434,6 +432,57 @@ public class MainGUI extends Application {
         timeCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getSimTimestamp()));
 
         TableColumn<SimulationSummaryLoad, Void> moreCol = new TableColumn<>("Details");
+        TableColumn<SimulationSummaryLoad, Void> chartCol = new TableColumn<>("Chart");
+
+        chartCol.setCellFactory(col -> new TableCell<>() {
+            private final Button chartBtn = new Button("Show Chart");
+
+            {
+                chartBtn.setOnAction(e -> {
+                    SimulationSummaryLoad summary = getTableView().getItems().get(getIndex());
+
+                    // se creeaza graficul real pe baza cloudlet-urilor din DB
+                    BarChart<String, Number> chart = createEnergyChartFromDb(summary.getId());
+
+                    // recalculeaza totalEnergy si cloudletExecTime din simulation_results
+                    List<SimulationResult> results = DatabaseManager.getResultsBySimulationId(summary.getId());
+
+                    double totalEnergy = 0.0;
+                    double cloudletExecTime = 0.0;
+                    for (SimulationResult r : results) {
+                        totalEnergy += r.getEnergy();
+                        cloudletExecTime += r.getExecTime();
+                    }
+
+                    // apelează fereastra graficului cu valorile reale
+                    showEnergyChartWindow(
+                            chart,
+                            summary.getAlgorithm(),
+                            summary.isDynamicScaling(),
+                            summary.getHosts(),
+                            summary.getVms(),
+                            summary.getCloudlets(),
+                            totalEnergy,
+                            summary.getRealExecTime(),
+                            cloudletExecTime
+                    );
+                });
+
+
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(chartBtn);
+                }
+            }
+        });
+
+
 
         moreCol.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Show More");
@@ -460,7 +509,7 @@ public class MainGUI extends Application {
 
         table.getColumns().addAll(
                 idCol, algoCol, scalingCol, hostsCol, vmsCol, clCol,
-                energyCol, realTimeCol, cloudletTimeCol, timeCol, moreCol
+                energyCol, realTimeCol, cloudletTimeCol, timeCol, moreCol, chartCol
         );
 
         table.getItems().addAll(DatabaseManager.getAllSimulationSummaries());
@@ -472,6 +521,39 @@ public class MainGUI extends Application {
         stage.setScene(scene);
         stage.show();
     }
+
+    private BarChart<String, Number> createEnergyChartFromDb(String simulationId) {
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("CloudletID");
+        yAxis.setLabel("Energy");
+
+        BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+        chart.setTitle("Energy Consumption per Cloudlet");
+        chart.setPrefHeight(250);
+        chart.setLegendVisible(false);
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
+        List<SimulationResult> results = DatabaseManager.getResultsBySimulationId(simulationId);
+
+        for (SimulationResult result : results) {
+            series.getData().add(new XYChart.Data<>(result.getCloudletId(), result.getEnergy()));
+        }
+
+        chart.getData().add(series);
+        return chart;
+    }
+
+
+    private SimulationSummaryLoad findSummaryById(String simulationId, TableView<SimulationSummaryLoad> table) {
+        return table.getItems()
+                .stream()
+                .filter(summary -> summary.getId().equals(simulationId))
+                .findFirst()
+                .orElse(null);
+    }
+
 
     private void showSimulationResultsWindow(String simulationId) {
         Stage stage = new Stage();
