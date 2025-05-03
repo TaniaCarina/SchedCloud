@@ -94,16 +94,29 @@ public class MainGUI extends Application {
 
         Button runButton = new Button("Run Simulation");
         Button suggestButton = new Button("Suggest Resources");
-        Button ecoButton = new Button("Eco Settings");
+        //Button ecoButton = new Button("Eco Settings");
         Button saveButton = new Button("Save Results");
         Button loadButton = new Button("Load Results");
 
 
+        runButton.setPrefWidth(127);
+        runButton.setPrefHeight(50);
 
-        runButton.setStyle("-fx-background-color: #1e81b0; -fx-text-fill: white;");
-        suggestButton.setStyle("-fx-background-color: #5193c7; -fx-text-fill: white;");
-        ecoButton.setStyle("-fx-background-color: #88c0d0; -fx-text-fill: #0D1B2A;");
-        saveButton.setStyle("-fx-background-color: #b0c4de; -fx-text-fill: #0D1B2A;");
+        suggestButton.setPrefWidth(150);
+        suggestButton.setPrefHeight(50);
+
+        saveButton.setPrefWidth(150);
+        saveButton.setPrefHeight(50);
+
+        loadButton.setPrefWidth(150);
+        loadButton.setPrefHeight(50);
+
+        runButton.setStyle("-fx-background-color: #5193c7; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius:8; -fx-cursor: hand; ");
+        suggestButton.setStyle("-fx-background-color: #6c99c3; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius:8; -fx-cursor: hand; ");
+        //ecoButton.setStyle("-fx-background-color: #5193c7; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius:8; -fx-cursor: hand; ");
+        saveButton.setStyle("-fx-background-color: #6c99c3; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius:8; -fx-cursor: hand; ");
+        loadButton.setStyle("-fx-background-color: #6c99c3; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius:8; -fx-cursor: hand; ");
+
 
         leftPane.getChildren().addAll(
                 modeLabel, normalSimButton, dynamicSimButton,
@@ -119,8 +132,8 @@ public class MainGUI extends Application {
                 labeledBox("Cores per VM:", pesNumberInput, labelStyle),
                 labeledBox("Number of Cloudlets (Tasks):", cloudletsInput, labelStyle),
                 labeledBox("Scheduling Algorithm:", algoSelect, labelStyle),
-                new HBox(10, runButton, suggestButton, ecoButton),
-                new HBox(10, saveButton, loadButton)
+                new HBox(10, runButton),//, ecoButton),
+                new HBox(10,suggestButton, saveButton, loadButton)
 
         );
 
@@ -128,7 +141,6 @@ public class MainGUI extends Application {
         resultsTable.setPrefHeight(400);
         resultsTable.setMinWidth(600);
         resultsTable.setMaxWidth(600);
-
 
         resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -258,12 +270,12 @@ public class MainGUI extends Application {
             }
         });
 
-        ecoButton.setOnAction(e -> {
-            vmRAMInput.setText("2");
-            vmMIPSInput.setText("2500");
-            pesNumberInput.setText("1");
-            showInfo("Eco Settings", "Applied 2 GB RAM / 2500 MIPS / 1 core");
-        });
+//        ecoButton.setOnAction(e -> {
+//            vmRAMInput.setText("2");
+//            vmMIPSInput.setText("2500");
+//            pesNumberInput.setText("1");
+//            showInfo("Eco Settings", "Applied 2 GB RAM / 2500 MIPS / 1 core");
+//        });
 
         saveButton.setOnAction(e -> {
             if (lastAlgorithm == null || lastAlgorithm.isEmpty()) {
@@ -299,6 +311,7 @@ public class MainGUI extends Application {
 
 
         Scene scene = new Scene(mainLayout, 1100, 700);
+        mainLayout.setStyle("-fx-background-color: #e0eaf5;");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -413,6 +426,13 @@ public class MainGUI extends Application {
             private final Button chartBtn = new Button("Show Chart");
 
             {
+                chartBtn.setStyle("""
+                    -fx-background-color: #6c99c3;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 8;
+                    -fx-cursor: hand;
+                """);
                 chartBtn.setOnAction(e -> {
                     SimulationSummaryLoad summary = getTableView().getItems().get(getIndex());
 
@@ -459,6 +479,13 @@ public class MainGUI extends Application {
             private final Button btn = new Button("Show More");
 
             {
+                btn.setStyle("""
+                    -fx-background-color: #8fbac8;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 8;
+                    -fx-cursor: hand;
+                """);
                 btn.setOnAction(e -> {
                     SimulationSummaryLoad summary = getTableView().getItems().get(getIndex());
                     showSimulationResultsWindow(summary.getId());
@@ -485,12 +512,17 @@ public class MainGUI extends Application {
 
         table.getItems().addAll(DatabaseManager.getAllSimulationSummaries());
 
-        VBox layout = new VBox(10, new Label("Saved Simulations:"), table);
+        Label titleLabel = new Label("Saved Simulations:");
+        titleLabel.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        VBox layout = new VBox(10, titleLabel, table);
+        layout.setStyle("-fx-background-color: #e0eaf5;");
         layout.setPadding(new Insets(20));
 
-        Scene scene = new Scene(layout, 1050, 500);
+        Scene scene = new Scene(layout, 1200, 500);
         stage.setScene(scene);
         stage.show();
+
     }
 
     private BarChart<String, Number> createEnergyChartFromDb(String simulationId) {
@@ -562,8 +594,13 @@ public class MainGUI extends Application {
         List<SimulationResult> results = DatabaseManager.getResultsBySimulationId(String.valueOf(simulationId));
         table.getItems().addAll(results);
 
-        VBox layout = new VBox(10, new Label("Results for Simulation ID: " + simulationId), table);
+        Label titleLabel = new Label("Results for Simulation ID: " + simulationId);
+        titleLabel.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        VBox layout = new VBox(10, titleLabel, table);
         layout.setPadding(new Insets(20));
+        layout.setStyle("-fx-background-color: #e0eaf5;");
+
         Scene scene = new Scene(layout, 1000, 500);
         stage.setScene(scene);
         stage.show();
