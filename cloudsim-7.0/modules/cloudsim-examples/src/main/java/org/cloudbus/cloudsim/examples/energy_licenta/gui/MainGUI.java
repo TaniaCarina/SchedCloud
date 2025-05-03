@@ -24,6 +24,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.util.Duration;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.DatabaseManager;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SaveSimulation;
+import org.cloudbus.cloudsim.examples.energy_licenta.db.SimulationResult;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNormal;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SchemaInitializer;
@@ -33,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.*;
+import java.util.List;
 import java.util.UUID;
 
 public class MainGUI extends Application {
@@ -401,8 +403,8 @@ public class MainGUI extends Application {
         TableView<SimulationSummaryLoad> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        TableColumn<SimulationSummaryLoad, Integer> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getId()));
+        TableColumn<SimulationSummaryLoad, String> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getId()));
 
         TableColumn<SimulationSummaryLoad, String> algoCol = new TableColumn<>("Algorithm");
         algoCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAlgorithm()));
@@ -439,8 +441,9 @@ public class MainGUI extends Application {
             {
                 btn.setOnAction(e -> {
                     SimulationSummaryLoad summary = getTableView().getItems().get(getIndex());
-                    showCloudletResultsWindow(summary.getId());
+                    showSimulationResultsWindow(summary.getId());
                 });
+
             }
 
             @Override
@@ -470,46 +473,45 @@ public class MainGUI extends Application {
         stage.show();
     }
 
-
-    private void showCloudletResultsWindow(int summaryId) {
+    private void showSimulationResultsWindow(String simulationId) {
         Stage stage = new Stage();
-        stage.setTitle("Simulation Results for Summary ID: " + summaryId);
+        stage.setTitle("Simulation Results - ID " + simulationId);
 
-        TableView<ResultsTable> table = ResultsTable.buildTable();
+        TableView<SimulationResult> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Query results from DB
-        String sql = "SELECT * FROM simulation_results WHERE summary_id = ?";
+        TableColumn<SimulationResult, String> cloudletIdCol = new TableColumn<>("Cloudlet ID");
+        cloudletIdCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCloudletId()));
 
-        try (Connection conn = DatabaseManager.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        TableColumn<SimulationResult, String> statusCol = new TableColumn<>("Status");
+        statusCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus()));
 
-            stmt.setInt(1, summaryId);
-            ResultSet rs = stmt.executeQuery();
+        TableColumn<SimulationResult, String> vmIdCol = new TableColumn<>("VM ID");
+        vmIdCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getVmId()));
 
-            while (rs.next()) {
-                ResultsTable row = new ResultsTable(
-                        rs.getString("cloudlet_id"),
-                        rs.getString("status"),
-                        rs.getString("vm_id"),
-                        rs.getString("host_id"),
-                        String.valueOf(rs.getDouble("start_time")),
-                        String.valueOf(rs.getDouble("finish_time")),
-                        String.valueOf(rs.getDouble("exec_time")),
-                        String.valueOf(rs.getDouble("energy"))
-                );
-                table.getItems().add(row);
-            }
+        TableColumn<SimulationResult, String> hostIdCol = new TableColumn<>("Host ID");
+        hostIdCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getHostId()));
 
-        } catch (SQLException e) {
-            showError("Error loading cloudlet results: " + e.getMessage());
-            return;
-        }
+        TableColumn<SimulationResult, Double> startTimeCol = new TableColumn<>("Start Time");
+        startTimeCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getStartTime()));
 
-        VBox layout = new VBox(10, new Label("Cloudlet Results for Simulation ID: " + summaryId), table);
+        TableColumn<SimulationResult, Double> finishTimeCol = new TableColumn<>("Finish Time");
+        finishTimeCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getFinishTime()));
+
+        TableColumn<SimulationResult, Double> execTimeCol = new TableColumn<>("Exec Time");
+        execTimeCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getExecTime()));
+
+        TableColumn<SimulationResult, Double> energyCol = new TableColumn<>("Energy");
+        energyCol.setCellValueFactory(data -> new SimpleObjectProperty<>(data.getValue().getEnergy()));
+
+        table.getColumns().addAll(cloudletIdCol, statusCol, vmIdCol, hostIdCol, startTimeCol, finishTimeCol, execTimeCol, energyCol);
+
+        List<SimulationResult> results = DatabaseManager.getResultsBySimulationId(String.valueOf(simulationId));
+        table.getItems().addAll(results);
+
+        VBox layout = new VBox(10, new Label("Results for Simulation ID: " + simulationId), table);
         layout.setPadding(new Insets(20));
-
-        Scene scene = new Scene(layout, 900, 400);
+        Scene scene = new Scene(layout, 1000, 500);
         stage.setScene(scene);
         stage.show();
     }

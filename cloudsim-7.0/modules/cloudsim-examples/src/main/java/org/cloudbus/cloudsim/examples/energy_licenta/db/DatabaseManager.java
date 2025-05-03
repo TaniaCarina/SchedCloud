@@ -17,13 +17,15 @@ public class DatabaseManager {
     }
 
     public static List<SimulationSummaryLoad> getAllSimulationSummaries() {
-        List<SimulationSummaryLoad> list = new ArrayList<>();
-        String sql = "SELECT * FROM simulation_summary ORDER BY sim_timestamp DESC";
+        List<SimulationSummaryLoad> summaries = new ArrayList<>();
+        String sql = "SELECT * FROM simulation_summary";
 
-        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
             while (rs.next()) {
-                list.add(new SimulationSummaryLoad(
-                        rs.getInt("id"),
+                SimulationSummaryLoad summary = new SimulationSummaryLoad(
+                        rs.getString("simulation_id"), // UUID ca String
                         rs.getString("algorithm"),
                         rs.getBoolean("dynamic_scaling"),
                         rs.getInt("hosts"),
@@ -33,14 +35,45 @@ public class DatabaseManager {
                         rs.getDouble("real_exec_time"),
                         rs.getDouble("cloudlet_exec_time"),
                         rs.getTimestamp("sim_timestamp")
-                ));
+                );
+                summaries.add(summary);
             }
         } catch (SQLException e) {
             System.err.println("Failed to fetch summaries: " + e.getMessage());
         }
 
-        return list;
+        return summaries;
     }
+
+
+    public static List<SimulationResult> getResultsBySimulationId(String simulationId) {
+        List<SimulationResult> results = new ArrayList<>();
+        String sql = "SELECT * FROM simulation_results WHERE simulation_id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, simulationId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                SimulationResult result = new SimulationResult(
+                        rs.getString("cloudlet_id"),
+                        rs.getString("status"),
+                        rs.getString("vm_id"),
+                        rs.getString("host_id"),
+                        rs.getDouble("start_time"),
+                        rs.getDouble("finish_time"),
+                        rs.getDouble("exec_time"),
+                        rs.getDouble("energy")
+                );
+                results.add(result);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching simulation results: " + e.getMessage());
+        }
+
+        return results;
+    }
+
 
 
 

@@ -11,6 +11,7 @@ public class SchemaInitializer {
         String sql = """
             CREATE TABLE IF NOT EXISTS simulation_results (
                 id INT AUTO_INCREMENT PRIMARY KEY,
+                simulation_id VARCHAR(36),
                 cloudlet_id VARCHAR(50),
                 status VARCHAR(20),
                 vm_id VARCHAR(20),
@@ -35,19 +36,19 @@ public class SchemaInitializer {
 
     public static void createSummaryTableIfNotExists() {
         String sql = """
-        CREATE TABLE IF NOT EXISTS simulation_summary (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            algorithm VARCHAR(50),
-            dynamic_scaling BOOLEAN,
-            hosts INT,
-            vms INT,
-            cloudlets INT,
-            total_energy DOUBLE,
-            real_exec_time DOUBLE,
-            cloudlet_exec_time DOUBLE,
-            sim_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """;
+            CREATE TABLE IF NOT EXISTS simulation_summary (
+                simulation_id VARCHAR(36) PRIMARY KEY,
+                algorithm VARCHAR(50),
+                dynamic_scaling BOOLEAN,
+                hosts INT,
+                vms INT,
+                cloudlets INT,
+                total_energy DOUBLE,
+                real_exec_time DOUBLE,
+                cloudlet_exec_time DOUBLE,
+                sim_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """;
 
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
