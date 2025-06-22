@@ -1,0 +1,163 @@
+
+@startuml
+title UML - energy_licenta CloudSim7G Project
+
+' ====== algorithms ======
+package energy_licenta.algorithms.basic {
+  class FCFS
+  class RoundRobin
+  class RandomScheduler
+}
+package energy_licenta.algorithms.heuristic {
+  class LJF
+  class MaxMin
+  class MinLengthRoundRobin
+  class MinMin
+}
+package energy_licenta.algorithms.metaheuristic {
+  class ACO
+  class PSO
+  class Genetic
+}
+interface SchedulingAlgorithm
+
+SchedulingAlgorithm <|-- FCFS
+SchedulingAlgorithm <|-- RoundRobin
+SchedulingAlgorithm <|-- RandomScheduler
+SchedulingAlgorithm <|-- LJF
+SchedulingAlgorithm <|-- MaxMin
+SchedulingAlgorithm <|-- MinLengthRoundRobin
+SchedulingAlgorithm <|-- MinMin
+SchedulingAlgorithm <|-- ACO
+SchedulingAlgorithm <|-- PSO
+SchedulingAlgorithm <|-- Genetic
+
+' ====== db ======
+package energy_licenta.db {
+  class DatabaseManager {
+    + List<SimulationResult> getResultsBySimulationId(String)
+    + Connection connect()
+  }
+
+  class SaveSimulation {
+    + void saveSummary(...)
+    + void saveCloudlets(List<ResultsTable>, String, String, boolean)
+  }
+
+  class SchemaInitializer {
+    + void createSummaryTableIfNotExists()
+    + void createTableIfNotExists()
+  }
+
+  class SimulationResult {
+    + String getCloudletId()
+    + String getStatus()
+    + String getVmId()
+    + String getHostId()
+    + double getStartTime()
+    + double getFinishTime()
+    + double getExecTime()
+    + double getEnergy()
+  }
+
+  SaveSimulation --> DatabaseManager
+  SchemaInitializer --> DatabaseManager
+  DatabaseManager --> SimulationResult
+}
+
+' ====== gui ======
+package energy_licenta.gui {
+  class MainGUI {
+    + void start(Stage)
+    + void showSummaryTableWindow()
+    + void showSimulationResultsWindow(String)
+    + void showEnergyChartWindow(BarChart, String, boolean)
+  }
+
+  class ResultsTable {
+    + String getCloudletId()
+    + String getStatus()
+    + String getVm()
+    + String getHost()
+    + String getStartTime()
+    + String getFinishTime()
+    + String getExecTime()
+    + String getEnergy()
+  }
+
+  class SimulationSummaryLoad {
+    + String getSimulationId()
+    + String getAlgorithm()
+    + boolean isDynamicScaling()
+    + int getHosts()
+    + int getVms()
+    + int getCloudlets()
+    + double getTotalEnergy()
+    + double getRealExecTime()
+    + double getCloudletExecTime()
+    + Timestamp getSimTimestamp()
+  }
+
+  MainGUI --> ResultsTable
+  MainGUI --> SimulationSummaryLoad
+  MainGUI --> SaveSimulation
+  MainGUI --> EnergySimulatorNormal
+  MainGUI --> EnergySimulatorDynamic
+}
+
+' ====== scaling ======
+package energy_licenta.scaling {
+  class VMConsolidation {
+    + void consolidateVMs(List<Vm>, List<Cloudlet>)
+    + void fakeConsolidateVMs(List<Vm>, List<Cloudlet>)
+  }
+
+  class VMScaler {
+    + void scaleUpVMs(DatacenterBroker, List<Vm>, int)
+  }
+}
+
+' ====== simulator ======
+package energy_licenta.simulator {
+  class CloudletManager {
+    + List<Cloudlet> createCloudlets(int, int)
+  }
+
+  class DatacenterManager {
+    + Datacenter createDatacenter(String, int, int, int)
+    + Datacenter createDatacenterNormal(String, int, int, int)
+  }
+
+  class EnergySimulatorDynamic {
+    + String runSimulation(...)
+  }
+
+  class EnergySimulatorNormal {
+    + String runSimulation(...)
+  }
+
+  class ResultsPrinter {
+    + String printResultsStringBuilder(DatacenterBroker, List<Vm>, SchedulingAlgorithm)
+  }
+
+  class VMManager {
+    + List<Vm> createVMs(...)
+    + List<Vm> createDynamicVMs(...)
+  }
+
+  EnergySimulatorDynamic --> VMScaler
+  EnergySimulatorDynamic --> VMConsolidation
+  EnergySimulatorNormal --> VMManager
+  EnergySimulatorNormal --> DatacenterManager
+  EnergySimulatorNormal --> CloudletManager
+  EnergySimulatorNormal --> ResultsPrinter
+}
+
+' ====== utils ======
+package energy_licenta.utils {
+  class EnergyCalculator {
+    + double calculateEnergyConsumption(Cloudlet, Vm)
+  }
+}
+
+@enduml
