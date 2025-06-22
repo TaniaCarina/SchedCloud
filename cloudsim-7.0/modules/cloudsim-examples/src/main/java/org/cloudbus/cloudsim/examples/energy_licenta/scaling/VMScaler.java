@@ -27,7 +27,7 @@ public class VMScaler {
         double avgCpuUtilization = calculateAverageCPUUsage(vmList, broker);
 
         if (avgCpuUtilization > SCALE_UP_THRESHOLD && waitingCloudlets > activeVMs) {
-            int newVMs = Math.min(3, maxVMs - activeVMs);
+            int newVMs = Math.min(waitingCloudlets / 2, maxVMs - activeVMs);
 
             for (int i = 0; i < newVMs; i++) {
                 int newId = activeVMs + i;
