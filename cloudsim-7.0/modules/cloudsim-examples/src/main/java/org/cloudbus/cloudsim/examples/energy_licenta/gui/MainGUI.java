@@ -69,8 +69,8 @@ public class MainGUI extends Application {
 
         Label modeLabel = new Label("Select Simulation Mode:");
         modeLabel.setStyle(labelStyle);
-        RadioButton normalSimButton = new RadioButton("Without Dynamic Scaling");
-        RadioButton dynamicSimButton = new RadioButton("With Dynamic Scaling");
+        RadioButton normalSimButton = new RadioButton("Normal");
+        RadioButton dynamicSimButton = new RadioButton("Energy Efficient");
         ToggleGroup toggleGroup = new ToggleGroup();
         normalSimButton.setToggleGroup(toggleGroup);
         dynamicSimButton.setToggleGroup(toggleGroup);
@@ -201,7 +201,7 @@ public class MainGUI extends Application {
                         .sum();
 
                 summaryLabel.setText(
-                        "Total Energy: " + String.format("%.2f", totalEnergy) +
+                        "Total Energy: " + String.format("%.2f", totalEnergy) +  " kJ" +
                                 "\nAlgorithm: " + selectedAlgo +
                                 "\nExecution Time (real): " + String.format("%.2f", realExecTime) + " sec" +
                                 "\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec"
@@ -336,7 +336,7 @@ public class MainGUI extends Application {
         javafx.scene.chart.CategoryAxis xAxis = new javafx.scene.chart.CategoryAxis();
         javafx.scene.chart.NumberAxis yAxis = new javafx.scene.chart.NumberAxis();
         xAxis.setLabel("CloudletID");
-        yAxis.setLabel("Energy");
+        yAxis.setLabel("Energy in kJ");
 
         javafx.scene.chart.BarChart<String, Number> chart = new javafx.scene.chart.BarChart<>(xAxis, yAxis);
         chart.setTitle("Energy Consumption per Cloudlet");
@@ -624,8 +624,8 @@ public class MainGUI extends Application {
 
         Label leftInfo = new Label(
                 "Algorithm: " + algorithm +
-                        "\n\nDynamic Scaling: " + (isDynamic ? "Enabled" : "Disabled") +
-                        "\n\nTotal Energy: " + String.format("%.2f", totalEnergy) +
+                        "\n\nEnergy Efficient: " + (isDynamic ? "Enabled" : "Disabled") +
+                        "\n\nTotal Energy: " + String.format("%.2f", totalEnergy) + " kJ" +
                         "\n\nExecution Time (real): " + String.format("%.2f", realExecTime) + " sec"
 
         );
