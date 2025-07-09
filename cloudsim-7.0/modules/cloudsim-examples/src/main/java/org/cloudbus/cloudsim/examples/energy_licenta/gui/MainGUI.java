@@ -22,8 +22,8 @@ import org.cloudbus.cloudsim.examples.energy_licenta.db.DatabaseManager;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SaveSimulation;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SchemaInitializer;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SimulationResult;
-import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorDynamic;
-import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergySimulatorNormal;
+import org.cloudbus.cloudsim.examples.energy_licenta.resource_manager.EnergySimulatorDynamic;
+import org.cloudbus.cloudsim.examples.energy_licenta.resource_manager.EnergySimulatorNormal;
 
 import javax.imageio.ImageIO;
 import java.io.File;
