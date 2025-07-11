@@ -2,7 +2,6 @@ package org.cloudbus.cloudsim.examples.energy_licenta.gui.layout;
 
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -98,7 +97,6 @@ public class MainLayoutBuilder {
         components.summaryLabel.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         rightPane.getChildren().addAll(summaryTitle, components.resultsTable, components.summaryLabel);
-
 
         // Combine in main layout
         components.leftPane = leftPane;
