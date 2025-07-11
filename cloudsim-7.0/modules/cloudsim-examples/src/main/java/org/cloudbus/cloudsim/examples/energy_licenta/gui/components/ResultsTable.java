@@ -1,8 +1,17 @@
-package org.cloudbus.cloudsim.examples.energy_licenta.gui;
+package org.cloudbus.cloudsim.examples.energy_licenta.gui.components;
 
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import org.cloudbus.cloudsim.examples.energy_licenta.db.DatabaseManager;
+import org.cloudbus.cloudsim.examples.energy_licenta.db.SimulationResult;
+
+import java.util.List;
+
 
 public class ResultsTable {
     private final String cloudletId;
@@ -33,6 +42,37 @@ public class ResultsTable {
     public String getFinishTime() { return finishTime; }
     public String getExecTime() { return execTime; }
     public String getEnergy() { return energy; }
+
+    public static void showSimulationResultsWindow(String simulationId) {
+        Stage stage = new Stage();
+        stage.setTitle("Simulation Results - ID " + simulationId);
+
+        TableView<ResultsTable> table = ResultsTable.buildTable();
+
+        List<SimulationResult> results = DatabaseManager.getResultsBySimulationId(simulationId);
+
+        // Convertim SimulationResult in ResultsTable
+        for (SimulationResult r : results) {
+            table.getItems().add(new ResultsTable(
+                    r.getCloudletId(),
+                    r.getStatus(),
+                    r.getVmId(),
+                    r.getHostId(),
+                    String.valueOf(r.getStartTime()),
+                    String.valueOf(r.getFinishTime()),
+                    String.valueOf(r.getExecTime()),
+                    String.valueOf(r.getEnergy())
+            ));
+        }
+
+        VBox layout = new VBox(10, table);
+        layout.setPadding(new Insets(20));
+        layout.setStyle("-fx-background-color: #e0eaf5;");
+
+        Scene scene = new Scene(layout, 1000, 500);
+        stage.setScene(scene);
+        stage.show();
+    }
 
     public static TableView<ResultsTable> buildTable() {
         TableView<ResultsTable> table = new TableView<>();

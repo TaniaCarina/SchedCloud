@@ -1,6 +1,6 @@
 package org.cloudbus.cloudsim.examples.energy_licenta.db;
 
-import org.cloudbus.cloudsim.examples.energy_licenta.gui.ResultsTable;
+import org.cloudbus.cloudsim.examples.energy_licenta.gui.components.ResultsTable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

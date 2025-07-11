@@ -36,7 +36,7 @@ public class ResultsPrinter {
             Vm assignedVm = null;
             int hostId = -1;
 
-            // Gasim VM-ul și Host-ul asociat cloudlet-ului
+            // Gasim VM-ul si Host-ul asociat cloudlet-ului
             for (Vm vm : vmList) {
                 if (vm.getId() == cloudlet.getVmId()) {
                     assignedVm = vm;
@@ -54,7 +54,7 @@ public class ResultsPrinter {
             double energyConsumption = (assignedVm != null) ? calculateEnergyConsumption(cloudlet, assignedVm) : 0.0;
             totalEnergyConsumption += energyConsumption;
 
-            // Adaugare în StringBuilder pentru UI
+            // Adaugare in StringBuilder pentru UI
             resultBuilder.append(String.format("%-12d %-10s %-5d %-5d %-12.2f %-12.2f %-12.2f %-18.2f%n",
                     cloudlet.getCloudletId(),
                     cloudlet.isFinished() ? "SUCCESS" : "FAILED",
@@ -65,7 +65,7 @@ public class ResultsPrinter {
                     cloudlet.getActualCPUTime(),
                     energyConsumption));
 
-            // Adaugare în CSV
+            // Adaugare in CSV
             fileContent.append(String.format("%d,%s,%d,%d,%.2f,%.2f,%.2f,%.2f\n",
                     cloudlet.getCloudletId(),
                     cloudlet.isFinished() ? "SUCCESS" : "FAILED",
@@ -81,7 +81,7 @@ public class ResultsPrinter {
         resultBuilder.append(String.format("Algorithm Used: %s%n", algorithm.getClass().getSimpleName()));
         resultBuilder.append(String.format("TOTAL ENERGY CONSUMPTION: %.2f kWh%n", totalEnergyConsumption));
 
-        // Salveaza rezultatele într-un fișier CSV
+        // Salveaza rezultatele intr-un fisier CSV
         writeResultsToFile("simulation_results.csv", fileContent.toString());
 
         // Returneaza rezultatele pentru UI
@@ -126,7 +126,7 @@ public class ResultsPrinter {
             double energyConsumption = (assignedVm != null) ? calculateEnergyConsumption(cloudlet, assignedVm) : 0.0;
             totalEnergyConsumption += energyConsumption;
 
-            // Afișare în consola
+            // Afisare in consola
             System.out.printf("%-12d %-10s %-5d %-5d %-12.2f %-12.2f %-12.2f %-18.2f%n",
                     cloudlet.getCloudletId(),
                     cloudlet.isFinished() ? "SUCCESS" : "FAILED",
@@ -137,7 +137,7 @@ public class ResultsPrinter {
                     cloudlet.getActualCPUTime(),
                     energyConsumption);
 
-            // Scriere în fișier CSV
+            // Scriere in fisier CSV
             fileContent.append(String.format("%d,%s,%d,%d,%.2f,%.2f,%.2f,%.2f\n",
                     cloudlet.getCloudletId(),
                     cloudlet.isFinished() ? "SUCCESS" : "FAILED",
@@ -153,16 +153,16 @@ public class ResultsPrinter {
         System.out.printf("Algorithm Used: %s%n", algorithm.getClass().getSimpleName());
         System.out.printf("TOTAL ENERGY CONSUMPTION: %.2f kWh%n", totalEnergyConsumption);
 
-        // Salveaza rezultatele într-un fișier CSV
+        // Salveaza rezultatele intr-un fisier CSV
         writeResultsToFile("simulation_results.csv", fileContent.toString());
     }
 
     private static void writeResultsToFile(String fileName, String content) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             writer.write(content);
-            System.out.println("* Rezultatele au fost salvate în: " + fileName);
+            System.out.println("* Rezultatele au fost salvate in: " + fileName);
         } catch (IOException e) {
-            System.err.println("! Eroare la scrierea în fișier: " + e.getMessage());
+            System.err.println("! Eroare la scrierea in fisier: " + e.getMessage());
         }
     }
 

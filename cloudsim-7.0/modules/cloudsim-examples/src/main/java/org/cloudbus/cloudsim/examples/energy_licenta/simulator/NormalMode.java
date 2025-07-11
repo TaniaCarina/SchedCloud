@@ -18,7 +18,7 @@ public class NormalMode {
                                        int numVMs, int vmMIPS, int vmRAM, long vmBW, long vmSize, int pesNumber,
                                        int numCloudlets, String algorithmName) {
         try {
-            // Inițializare CloudSim
+            // Initializare CloudSim
             int numUsers = 1;
             Calendar calendar = Calendar.getInstance();
             CloudSim.init(numUsers, calendar, false);
@@ -40,11 +40,11 @@ public class NormalMode {
 
             fakeConsolidateVMs(vmList, cloudletList);
 
-            // Trimite VM-uri și Cloudlet-uri la broker
+            // Trimite VM-uri si Cloudlet-uri la broker
             broker.submitGuestList(vmList);
             broker.submitCloudletList(cloudletList);
 
-            // Asigura corect HostId în VM-uri
+            // Asigura corect HostId in VM-uri
             DatacenterManager.bindVMsToHosts(vmList, datacenter0);
 
             // Rulare algoritm

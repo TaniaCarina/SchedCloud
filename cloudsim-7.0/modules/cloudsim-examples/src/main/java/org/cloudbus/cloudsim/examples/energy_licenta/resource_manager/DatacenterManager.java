@@ -79,7 +79,7 @@ public class DatacenterManager {
         for (Vm vm : vmList) {
             Host host = datacenter.getVmAllocationPolicy().getHost(vm);
             if (host != null) {
-                vm.setHost(host); // Seteaza explicit hostul în VM
+                vm.setHost(host); // Seteaza explicit hostul in VM
             }
         }
     }

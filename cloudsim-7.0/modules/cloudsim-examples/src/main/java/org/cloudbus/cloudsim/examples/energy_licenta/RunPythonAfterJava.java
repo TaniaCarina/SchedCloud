@@ -14,7 +14,7 @@
 //
 //        try {
 //            // Calea absoluta catre Python
-//            String pythonPath = "C:\\Users\\tania\\AppData\\Local\\Programs\\Python\\Python311\\python.exe";  // Modifică daca ai altă versiune
+//            String pythonPath = "C:\\Users\\tania\\AppData\\Local\\Programs\\Python\\Python311\\python.exe";  // Modifica daca ai alta versiune
 //
 //            // Calea absoluta catre scriptul Python
 //            String scriptPath = "C:\\cloudsim-7.0\\ShowSimulation\\animation.py";

@@ -23,7 +23,7 @@ public class EnergyEfficientMode {
                                        int numVMs, int vmMIPS, int vmRAM, long vmBW, long vmSize, int pesNumber,
                                        int numCloudlets, String algorithmName) {
         try {
-            // Inițializare CloudSim
+            // Initializare CloudSim
             int numUsers = 1;
             Calendar calendar = Calendar.getInstance();
             CloudSim.init(numUsers, calendar, false);
