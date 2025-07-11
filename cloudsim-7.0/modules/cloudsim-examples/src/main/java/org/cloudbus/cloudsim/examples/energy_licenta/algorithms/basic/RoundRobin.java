@@ -18,9 +18,9 @@ public class RoundRobin implements SchedulingAlgorithm {
             cloudlet.setVmId(vm.getId());
             broker.bindCloudletToVm(cloudlet.getCloudletId(), vm.getId());
 
-            vmIndex = (vmIndex + 1) % vmList.size(); // Selecteaza VM-ul în mod ciclic
+            vmIndex = (vmIndex + 1) % vmList.size();
         }
 
-        System.out.println("~~~ Round Robin Scheduler applied! ~~~");
+        System.out.println("Round Robin Scheduler applied!");
     }
 }

@@ -22,8 +22,8 @@ import org.cloudbus.cloudsim.examples.energy_licenta.db.DatabaseManager;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SaveSimulation;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SchemaInitializer;
 import org.cloudbus.cloudsim.examples.energy_licenta.db.SimulationResult;
-import org.cloudbus.cloudsim.examples.energy_licenta.resource_manager.EnergySimulatorDynamic;
-import org.cloudbus.cloudsim.examples.energy_licenta.resource_manager.EnergySimulatorNormal;
+import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergyEfficientMode;
+import org.cloudbus.cloudsim.examples.energy_licenta.simulator.NormalMode;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -171,10 +171,10 @@ public class MainGUI extends Application {
                 long startTime = System.currentTimeMillis();
 
                 if (dynamicSimButton.isSelected()) {
-                    results = EnergySimulatorDynamic.runSimulation(numHosts, hostMIPS, hostRAM, numVMs,
+                    results = EnergyEfficientMode.runSimulation(numHosts, hostMIPS, hostRAM, numVMs,
                             vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
                 } else {
-                    results = EnergySimulatorNormal.runSimulation(numHosts, hostMIPS, hostRAM, numVMs,
+                    results = NormalMode.runSimulation(numHosts, hostMIPS, hostRAM, numVMs,
                             vmMIPS, vmRAM, vmBW, vmSize, pesNumber, numCloudlets, selectedAlgo);
                 }
 

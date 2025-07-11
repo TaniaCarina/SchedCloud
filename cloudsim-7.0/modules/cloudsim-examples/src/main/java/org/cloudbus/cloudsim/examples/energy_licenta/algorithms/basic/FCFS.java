@@ -15,6 +15,6 @@ public class FCFS implements SchedulingAlgorithm {
             Vm vm = vmlist.get(i % vmlist.size());
             cloudlet.setVmId(vm.getId());
         }
-        System.out.println("~~~ FCFS Algorithm applied! ~~~");
+        System.out.println("FCFS algorithm applied!");
     }
 }

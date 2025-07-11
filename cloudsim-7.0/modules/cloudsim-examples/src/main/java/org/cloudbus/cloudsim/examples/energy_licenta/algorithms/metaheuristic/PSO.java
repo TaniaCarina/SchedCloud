@@ -30,7 +30,7 @@ public class PSO implements SchedulingAlgorithm {
         List<Particle> swarm = new ArrayList<>();
         Random random = new Random();
 
-        // Initialize particles
+        // Initializare particule
         for (int i = 0; i < PARTICLE_COUNT; i++) {
             int[] position = new int[numCloudlets];
             for (int j = 0; j < numCloudlets; j++) {
@@ -55,7 +55,7 @@ public class PSO implements SchedulingAlgorithm {
                 }
             }
 
-            // Update particles (simplified: random mutation)
+            // Update particule
             for (Particle particle : swarm) {
                 for (int j = 0; j < numCloudlets; j++) {
                     if (random.nextDouble() < 0.2) {
@@ -73,7 +73,7 @@ public class PSO implements SchedulingAlgorithm {
             broker.bindCloudletToVm(cl.getCloudletId(), vm.getId());
         }
 
-        System.out.println("~~~ Particle Swarm Optimization (PSO) Scheduler applied! ~~~");
+        System.out.println("Particle Swarm Optimization (PSO) algorithm applied!");
     }
 
     private double evaluate(Particle particle, List<Cloudlet> cloudletList, List<Vm> vmList) {

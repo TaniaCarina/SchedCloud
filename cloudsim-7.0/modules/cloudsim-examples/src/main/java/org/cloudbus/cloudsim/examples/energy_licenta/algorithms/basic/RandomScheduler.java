@@ -22,6 +22,6 @@ public class RandomScheduler implements SchedulingAlgorithm {
             broker.bindCloudletToVm(cloudlet.getCloudletId(), selectedVm.getId());
         }
 
-        System.out.println("~~~ Random Scheduler applied! ~~~");
+        System.out.println("Random Scheduler applied!");
     }
 }

@@ -18,7 +18,6 @@ import java.util.*;
  */
 
 public class ACO implements SchedulingAlgorithm {
-    private final int numAnts = 10;
     private final double evaporationRate = 0.5;
     private final double pheromoneIncrease = 1.0;
     private final int iterations = 100;
@@ -48,7 +47,7 @@ public class ACO implements SchedulingAlgorithm {
             broker.bindCloudletToVm(ant.getCloudlet().getCloudletId(), ant.getVm().getId());
         }
 
-        System.out.println("~~~ Optimized ACO Algorithm applied! ~~~");
+        System.out.println("ACO Algorithm applied!");
     }
 
     private void initializePheromoneMap() {

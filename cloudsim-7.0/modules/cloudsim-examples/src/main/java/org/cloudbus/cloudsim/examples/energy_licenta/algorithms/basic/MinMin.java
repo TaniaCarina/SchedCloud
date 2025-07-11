@@ -53,6 +53,6 @@ public class MinMin implements SchedulingAlgorithm {
             }
         }
 
-        System.out.println("~~~ Min-Min Scheduler applied! ~~~");
+        System.out.println("Min-Min Scheduler applied!");
     }
 }

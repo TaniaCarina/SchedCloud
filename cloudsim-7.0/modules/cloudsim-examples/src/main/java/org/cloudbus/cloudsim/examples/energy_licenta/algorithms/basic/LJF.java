@@ -27,6 +27,6 @@ public class LJF implements SchedulingAlgorithm {
             vmIndex = (vmIndex + 1) % vmList.size();
         }
 
-        System.out.println("~~~ Longest Job First (LJF) Scheduler applied! ~~~");
+        System.out.println("Longest Job First (LJF) algorithm applied!");
     }
 }

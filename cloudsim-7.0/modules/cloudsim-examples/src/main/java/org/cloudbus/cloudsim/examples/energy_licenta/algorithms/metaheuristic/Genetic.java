@@ -71,7 +71,7 @@ public class Genetic implements SchedulingAlgorithm {
             broker.bindCloudletToVm(cl.getCloudletId(), vm.getId());
         }
 
-        System.out.println("~~~ Genetic Algorithm Scheduler applied! ~~~");
+        System.out.println("Genetic Algorithm applied!");
     }
 
     private double fitness(int[] chromosome, List<Cloudlet> cloudletList, List<Vm> vmList) {

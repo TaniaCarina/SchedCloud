@@ -35,7 +35,7 @@ public class MaxMin implements SchedulingAlgorithm {
                 Vm bestVmForCloudlet = null;
 
                 for (Vm vm : vmList) {
-                    double estTime = cloudlet.getCloudletLength() / (double) vm.getMips();
+                    double estTime = cloudlet.getCloudletLength() / vm.getMips();
                     double completionTime = vmFinishTimes.get(vm.getId()) + estTime;
 
                     if (completionTime < minCompletionTimeForCloudlet) {
@@ -53,7 +53,7 @@ public class MaxMin implements SchedulingAlgorithm {
 
             if (selectedCloudlet != null && selectedVm != null) {
                 broker.bindCloudletToVm(selectedCloudlet.getCloudletId(), selectedVm.getId());
-                double execTime = selectedCloudlet.getCloudletLength() / (double) selectedVm.getMips();
+                double execTime = selectedCloudlet.getCloudletLength() / selectedVm.getMips();
                 vmFinishTimes.put(selectedVm.getId(), vmFinishTimes.get(selectedVm.getId()) + execTime);
                 unassignedCloudlets.remove(selectedCloudlet);
             } else {
@@ -61,6 +61,6 @@ public class MaxMin implements SchedulingAlgorithm {
             }
         }
 
-        System.out.println("~~~ Max-Min Scheduler applied! ~~~");
+        System.out.println("Max-Min Scheduler applied!");
     }
 }
