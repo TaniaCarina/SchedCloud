@@ -1,6 +1,7 @@
 package org.cloudbus.cloudsim.examples.energy_licenta.resource_manager;
 
 import org.cloudbus.cloudsim.*;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
@@ -71,6 +72,16 @@ public class DatacenterManager {
         }
 
         return datacenter;
+    }
+    public static void bindVMsToHosts(List<Vm> vmList, Datacenter datacenter) {
+        if (datacenter == null || vmList == null) return;
+
+        for (Vm vm : vmList) {
+            Host host = datacenter.getVmAllocationPolicy().getHost(vm);
+            if (host != null) {
+                vm.setHost(host); // Setează explicit hostul în VM
+            }
+        }
     }
 
 

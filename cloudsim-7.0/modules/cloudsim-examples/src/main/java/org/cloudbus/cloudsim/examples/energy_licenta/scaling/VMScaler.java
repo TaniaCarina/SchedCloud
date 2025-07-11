@@ -39,7 +39,10 @@ public class VMScaler {
         }
     }
 
-    ////consumul de energie este calculat pe baza utilizarii cpu a fiecarui vm
+    /**
+     * Consumul de energie este calculat pe baza utilizarii CPU a fiecarui VM
+     */
+
     private static double calculateAverageCPUUsage(List<Vm> vmList, DatacenterBroker broker) {
         if (vmList.isEmpty()) return 0.0;
         double totalUsage = 0.0;
@@ -63,32 +66,6 @@ public class VMScaler {
             }
         }
         return totalUtilization;
-    }
-
-
-
-
-
-    public static void scaleUpVMs_nu_prea_bun(DatacenterBroker broker, List<Vm> vmList, int maxVMs) {    //consum de energie dublu cu alocare dinamica
-        if (CloudSim.clock() > 0) { // Daca simularea s-a terminat, nu mai scalam
-            return;
-        }
-
-        int activeVMs = vmList.size();
-        int waitingCloudlets = (int) broker.getCloudletSubmittedList().stream()
-                .filter(cloudlet -> !cloudlet.isFinished())
-                .count();
-
-        if (waitingCloudlets > activeVMs * 2 && activeVMs < maxVMs) {
-            int newVMs = Math.min(5, maxVMs - activeVMs);
-
-            for (int i = 0; i < newVMs; i++) {
-                int newId = activeVMs + i;
-                Vm vm = new Vm(newId, broker.getId(), 500, 1, 2048, 1000, 10000, "Xen", new CloudletSchedulerTimeShared());
-                vmList.add(vm);
-            }
-            System.out.println(" ~!!!~ [Scaling] Adaugate " + newVMs + " VM-uri suplimentare.");
-        }
     }
 
 }

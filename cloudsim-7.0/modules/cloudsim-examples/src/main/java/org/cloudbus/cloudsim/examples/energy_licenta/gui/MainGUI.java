@@ -94,10 +94,8 @@ public class MainGUI extends Application {
 
         Button runButton = new Button("Run Simulation");
         Button suggestButton = new Button("Suggest Resources");
-        //Button ecoButton = new Button("Eco Settings");
         Button saveButton = new Button("Save Results");
         Button loadButton = new Button("Load Results");
-
 
         runButton.setPrefWidth(127);
         runButton.setPrefHeight(50);
@@ -270,12 +268,6 @@ public class MainGUI extends Application {
             }
         });
 
-//        ecoButton.setOnAction(e -> {
-//            vmRAMInput.setText("2");
-//            vmMIPSInput.setText("2500");
-//            pesNumberInput.setText("1");
-//            showInfo("Eco Settings", "Applied 2 GB RAM / 2500 MIPS / 1 core");
-//        });
 
         saveButton.setOnAction(e -> {
             if (lastAlgorithm == null || lastAlgorithm.isEmpty()) {
@@ -548,7 +540,6 @@ public class MainGUI extends Application {
         return chart;
     }
 
-
     private SimulationSummaryLoad findSummaryById(String simulationId, TableView<SimulationSummaryLoad> table) {
         return table.getItems()
                 .stream()
@@ -556,7 +547,6 @@ public class MainGUI extends Application {
                 .findFirst()
                 .orElse(null);
     }
-
 
     private void showSimulationResultsWindow(String simulationId) {
         Stage stage = new Stage();

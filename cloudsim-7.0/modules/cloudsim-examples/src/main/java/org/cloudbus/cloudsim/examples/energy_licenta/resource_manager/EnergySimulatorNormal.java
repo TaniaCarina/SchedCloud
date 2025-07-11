@@ -3,10 +3,7 @@ package org.cloudbus.cloudsim.examples.energy_licenta.resource_manager;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.*;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.basic.FCFS;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.basic.RandomScheduler;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.basic.RoundRobin;
-import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.heuristic.*;
+import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.basic.*;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.metaheuristic.ACO;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.metaheuristic.Genetic;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.metaheuristic.PSO;
@@ -30,8 +27,7 @@ public class EnergySimulatorNormal {
             Calendar calendar = Calendar.getInstance();
             CloudSim.init(numUsers, calendar, false);
 
-            // Creare Datacenter cu parametrii corecți
-            Datacenter datacenter = createDatacenterNormal("Datacenter_0", numHosts, hostMIPS, hostRAM);
+            Datacenter datacenter0 = DatacenterManager.createDatacenterNormal("Datacenter_0", numHosts, hostMIPS, hostRAM);
 
             // Creare Broker
             DatacenterBroker broker = new DatacenterBroker("Broker");
@@ -40,50 +36,60 @@ public class EnergySimulatorNormal {
             List<Cloudlet> cloudletList = createCloudlets(broker.getId(), numCloudlets);
             broker.submitCloudletList(cloudletList);
 
-            // Alegere algoritm de scheduling
-            SchedulingAlgorithm algorithm;
-            switch (algorithmName) {
-                case "MinLengthRoundRobin":
-                    algorithm = new MinLengthRoundRobin();
-                    break;
-                case "ACO":
-                    algorithm = new ACO();
-                    break;
-                case "FCFS":
-                    algorithm = new FCFS();
-                    break;
-                case "RoundRobin":
-                    algorithm = new RoundRobin(); break;
-                case "Random":
-                    algorithm = new RandomScheduler(); break;
-                case "LJF":
-                    algorithm = new LJF(); break;
-                case "MinMin":
-                    algorithm = new MinMin(); break;
-                case "MaxMin":
-                    algorithm = new MaxMin(); break;
-                case "PSO":
-                    algorithm = new PSO(); break;
-                case "Genetic":
-                    algorithm = new Genetic(); break;
-                default:
-                    algorithm = new MinLengthRoundRobin();
-            }
-
-            // Creare VM-uri fara scalare dinamica
+            // Creare VM-uri
             List<Vm> vmList = createVMs(broker.getId(), numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber);
 
+            // Alegere algoritm de scheduling
+//            SchedulingAlgorithm algorithm;
+//            switch (algorithmName) {
+//                case "MinLengthRoundRobin":
+//                    algorithm = new MinLengthRoundRobin();
+//                    break;
+//                case "ACO":
+//                    algorithm = new ACO();
+//                    break;
+//                case "FCFS":
+//                    algorithm = new FCFS();
+//                    break;
+//                case "RoundRobin":
+//                    algorithm = new RoundRobin(); break;
+//                case "Random":
+//                    algorithm = new RandomScheduler(); break;
+//                case "LJF":
+//                    algorithm = new LJF(); break;
+//                case "MinMin":
+//                    algorithm = new MinMin(); break;
+//                case "MaxMin":
+//                    algorithm = new MaxMin(); break;
+//                case "PSO":
+//                    algorithm = new PSO(); break;
+//                case "Genetic":
+//                    algorithm = new Genetic(); break;
+//                default:
+//                    algorithm = new MinLengthRoundRobin();
+//            }
+            SchedulingAlgorithm algorithm = AlgorithmFactory.getAlgorithm(algorithmName);
+
+
+
             fakeConsolidateVMs(vmList, cloudletList);
+
+            // Trimite VM-uri și Cloudlet-uri la broker
             broker.submitGuestList(vmList);
+            broker.submitCloudletList(cloudletList);
 
+            // Asigură corect HostId în VM-uri
+            DatacenterManager.bindVMsToHosts(vmList, datacenter0);
 
-            // Rulare algoritm de scheduling
+            // Rulare algoritm
             algorithm.runAlgorithm(broker, vmList, cloudletList);
 
-
+            // Pornire simulare
             CloudSim.startSimulation();
+            CloudSim.stopSimulation();
 
-            return printResultsStringBuilder(broker,  vmList, algorithm);
+            // Returnare rezultate
+            return printResultsStringBuilder(broker, vmList, algorithm);
 
 
         } catch (Exception e) {
@@ -92,6 +98,8 @@ public class EnergySimulatorNormal {
         }
     }
 }
+
+
 
 
 
