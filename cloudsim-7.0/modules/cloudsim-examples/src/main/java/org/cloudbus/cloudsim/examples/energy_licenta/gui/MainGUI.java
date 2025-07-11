@@ -441,7 +441,7 @@ public class MainGUI extends Application {
                         cloudletExecTime += r.getExecTime();
                     }
 
-                    // apelează fereastra graficului cu valorile reale
+                    // apeleaza fereastra graficului cu valorile reale
                     showEnergyChartWindow(
                             chart,
                             summary.getAlgorithm(),

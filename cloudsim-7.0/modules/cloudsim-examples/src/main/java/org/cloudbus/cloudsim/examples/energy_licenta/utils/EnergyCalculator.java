@@ -10,12 +10,12 @@ public class EnergyCalculator {
     //  se calc energia pt fiecare cloudlet
     //  energie (kJ) = execTime (sec) × MIPS × powerPerMIPS / 1000
     public static double calculateEnergyConsumption(Cloudlet cloudlet, Vm vm) {
-        double executionTime = cloudlet.getActualCPUTime();  //!!! timpul real de executie al Cloudlet-ului   si    vm.getMips = capacitatea de procesare a VM-ului
+        double executionTime = cloudlet.getActualCPUTime();
 
         // DVFS: Daca VM-ul are o utilizare CPU sub 50%, reducem frecventa
         double frequencyFactor = vm.getMips() > 250 ? 1.0 : 0.7;  // Daca MIPS < 250, frecventa e mai mica
 
         double powerPerMIPS = 0.5 * frequencyFactor;  // Reducem consumul energetic
-        return executionTime * vm.getMips() * powerPerMIPS / 1000.0;  // Convertim la kWh
+        return executionTime * vm.getMips() * powerPerMIPS / 1000.0;  // Convertim la kJ
     }
 }

@@ -13,14 +13,14 @@
 //        System.out.println("Java simulation finished. Running Python...");
 //
 //        try {
-//            // Calea absolută catre Python
-//            String pythonPath = "C:\\Users\\tania\\AppData\\Local\\Programs\\Python\\Python311\\python.exe";  // Modifică dacă ai altă versiune
+//            // Calea absoluta catre Python
+//            String pythonPath = "C:\\Users\\tania\\AppData\\Local\\Programs\\Python\\Python311\\python.exe";  // Modifică daca ai altă versiune
 //
-//            // Calea absolută catre scriptul Python
+//            // Calea absoluta catre scriptul Python
 //            String scriptPath = "C:\\cloudsim-7.0\\ShowSimulation\\animation.py";
 //
 //            ProcessBuilder pb = new ProcessBuilder(pythonPath, scriptPath);
-//            pb.directory(new File("C:\\Users\\tania\\Desktop\\licenta\\cloudsim-7.0\\ShowSimulation\\animation.py")); // Setează directorul de lucru
+//            pb.directory(new File("C:\\Users\\tania\\Desktop\\licenta\\cloudsim-7.0\\ShowSimulation\\animation.py")); // Seteaza directorul de lucru
 //            pb.inheritIO();
 //            Process process = pb.start();
 //            process.waitFor();

@@ -20,11 +20,11 @@ public class DatacenterManager {
 
                 hostList.add(new Host(
                         i,
-                        new RamProvisionerSimple(hostRAM), // RAM suficient pentru VM-uri
-                        new BwProvisionerSimple(10000), // Bandwidth mare pentru a evita blocajele
-                        1000000, // Storage mare pentru a putea rula multe VM-uri
+                        new RamProvisionerSimple(hostRAM),
+                        new BwProvisionerSimple(10000),
+                        1000000,
                         peList,
-                        new VmSchedulerTimeShared(peList) // Permite împărțirea resurselor între VM-uri
+                        new VmSchedulerTimeShared(peList)
                 ));
             }
 
@@ -79,7 +79,7 @@ public class DatacenterManager {
         for (Vm vm : vmList) {
             Host host = datacenter.getVmAllocationPolicy().getHost(vm);
             if (host != null) {
-                vm.setHost(host); // Setează explicit hostul în VM
+                vm.setHost(host); // Seteaza explicit hostul în VM
             }
         }
     }
