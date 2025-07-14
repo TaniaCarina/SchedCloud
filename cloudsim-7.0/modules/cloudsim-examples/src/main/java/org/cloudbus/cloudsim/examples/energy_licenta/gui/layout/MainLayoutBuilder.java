@@ -93,7 +93,7 @@ public class MainLayoutBuilder {
         components.resultsTable.setMinWidth(600);
         components.resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        components.summaryLabel = new Label("Total Energy: 0 \nAlgorithm: -");
+        components.summaryLabel = new Label("Total Energy: 0 \nAlgorithm: ");
         components.summaryLabel.setStyle("-fx-text-fill: #0D1B2A; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         rightPane.getChildren().addAll(summaryTitle, components.resultsTable, components.summaryLabel);

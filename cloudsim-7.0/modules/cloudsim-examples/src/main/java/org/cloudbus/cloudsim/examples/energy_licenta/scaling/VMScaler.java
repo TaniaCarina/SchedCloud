@@ -1,7 +1,6 @@
 package org.cloudbus.cloudsim.examples.energy_licenta.scaling;
 
 import org.cloudbus.cloudsim.Cloudlet;
-import org.cloudbus.cloudsim.CloudletSchedulerTimeShared;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
@@ -17,9 +16,9 @@ public class VMScaler {
     private static double lastScaleTime = 0;
 
     public static void scaleUpVMs(DatacenterBroker broker, List<Vm> vmList, int maxVMs) {
-        if (CloudSim.clock() - lastScaleTime < SCALING_DELAY) return; // Cooldown active, skip scaling
+        if (CloudSim.clock() - lastScaleTime < SCALING_DELAY) return;
 
-        int activeVMs = vmList.size();
+        int activeVMs = (int) vmList.stream().filter(vm -> vm.getMips() > 0).count();
         int waitingCloudlets = (int) broker.getCloudletSubmittedList().stream()
                 .filter(cloudlet -> !cloudlet.isFinished())
                 .count();
@@ -27,15 +26,18 @@ public class VMScaler {
         double avgCpuUtilization = calculateAverageCPUUsage(vmList, broker);
 
         if (avgCpuUtilization > SCALE_UP_THRESHOLD && waitingCloudlets > activeVMs) {
-            int newVMs = Math.min(waitingCloudlets / 2, maxVMs - activeVMs);
+            int numToActivate = Math.min(waitingCloudlets / 2, maxVMs - activeVMs);
+            int activated = 0;
 
-            for (int i = 0; i < newVMs; i++) {
-                int newId = activeVMs + i;
-                Vm vm = new Vm(newId, broker.getId(), 500, 1, 2048, 1000, 10000, "Xen", new CloudletSchedulerTimeShared());
-                vmList.add(vm);
+            for (Vm vm : vmList) {
+                if (vm.getMips() == 0) {
+                    vm.setMips(500);
+                    activated++;
+                    if (activated >= numToActivate) break;
+                }
             }
+
             lastScaleTime = CloudSim.clock();
-            System.out.println(" ~!!!~ [Scaling] Added " + newVMs + " new VM(s).");
         }
     }
 

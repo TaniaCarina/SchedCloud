@@ -6,11 +6,13 @@ import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.*;
+import org.cloudbus.cloudsim.examples.energy_licenta.resource_manager.VMManager;
 
 import java.util.Calendar;
 import java.util.List;
 
 import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMConsolidation.consolidateVMs;
+import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMConsolidation.consolidateVMs2;
 import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMScaler.scaleUpVMs;
 import static org.cloudbus.cloudsim.examples.energy_licenta.resource_manager.CloudletManager.createCloudlets;
 import static org.cloudbus.cloudsim.examples.energy_licenta.resource_manager.DatacenterManager.createDatacenter;
@@ -42,11 +44,13 @@ public class EnergyEfficientMode {
             SchedulingAlgorithm algorithm = AlgorithmFactory.getAlgorithm(algorithmName);
 
             // Creare VM-uri dinamice
-            List<Vm> vmList = createDynamicVMs(broker.getId(), numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber);
+            int startId = 0;
+            List<Vm> vmList = VMManager.createDynamicVMs(startId, broker.getId(), numVMs, vmMIPS, vmRAM, vmBW, vmSize, pesNumber);
+
 
             // Aplicare scalare dinamica
-            scaleUpVMs(broker, vmList, numCloudlets / 3); // Scalare daca este necesar
-            consolidateVMs(vmList, cloudletList); // Consolidare VM-uri
+            scaleUpVMs(broker, vmList, numCloudlets / 3 ); // Scalare daca este necesar
+            consolidateVMs2(vmList, cloudletList); // Consolidare VM-uri
 
             broker.submitGuestList(vmList);
 

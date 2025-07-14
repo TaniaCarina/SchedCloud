@@ -20,17 +20,21 @@ public class VMManager {
 
     private static final int MIN_INITIAL_VMS = 5;
 
-    public static List<Vm> createDynamicVMs(int brokerId, int numVMs, int mips, int ram, long bw, long size, int pesNumber) {
+    public static List<Vm> createDynamicVMs(int startId, int brokerId, int numVMs, int mips, int ram, long bw, long size, int pesNumber) {
         List<Vm> vmList = new ArrayList<>();
-        int initialVMs = Math.max(MIN_INITIAL_VMS, numVMs); // Folosim numarul exact de VM-uri specificat
+        int initialVMs = Math.max(MIN_INITIAL_VMS, numVMs);
 
         for (int i = 0; i < initialVMs; i++) {
-            Vm vm = new Vm(i, brokerId, mips, pesNumber, ram, bw, size, "Xen", new CloudletSchedulerTimeShared());
+            int vmId = startId + i;
+            Vm vm = new Vm(vmId, brokerId, mips, pesNumber, ram, bw, size, "Xen", new CloudletSchedulerTimeShared());
             vmList.add(vm);
         }
+
         System.out.println("[Scaling] Started with " + initialVMs + " VM(s).");
         return vmList;
     }
+
+
 
 
 }

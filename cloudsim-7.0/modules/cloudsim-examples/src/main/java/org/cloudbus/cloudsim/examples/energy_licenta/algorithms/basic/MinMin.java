@@ -7,6 +7,8 @@ import org.cloudbus.cloudsim.examples.energy_licenta.algorithms.SchedulingAlgori
 
 import java.util.*;
 
+import static org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMConsolidation.fakeConsolidateVMs;
+
 
 /**
  * Calculeaza pentru fiecare cloudlet si fiecare VM timpul estimat de finalizare
@@ -53,6 +55,18 @@ public class MinMin implements SchedulingAlgorithm {
             }
         }
 
+        // Forteaza realocarea VM-urilor si permite obtinerea hostId
+        fakeConsolidateVMs2(vmList, cloudletList);
+
         System.out.println("Min-Min Scheduler applied!");
     }
+
+    public static void fakeConsolidateVMs2(List<Vm> vmList, List<Cloudlet> cloudletList) {
+        for (Vm vm : vmList) {
+            if (vm.getMips() > 0) {
+                vm.setMips(vm.getMips()); // forțează CloudSim sa reacționeze
+            }
+        }
+    }
+
 }

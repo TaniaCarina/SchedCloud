@@ -6,6 +6,7 @@ import org.cloudbus.cloudsim.examples.energy_licenta.db.SaveSimulation;
 import org.cloudbus.cloudsim.examples.energy_licenta.gui.components.ResultsTable;
 import org.cloudbus.cloudsim.examples.energy_licenta.gui.components.ChartWindow;
 import org.cloudbus.cloudsim.examples.energy_licenta.gui.components.SummaryWindow;
+import org.cloudbus.cloudsim.examples.energy_licenta.scaling.VMConsolidation;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.EnergyEfficientMode;
 import org.cloudbus.cloudsim.examples.energy_licenta.simulator.NormalMode;
 
@@ -51,8 +52,10 @@ public class ButtonActionHandler {
                     "Total Energy: " + String.format("%.2f", totalEnergy) + " kJ" +
                             "\nAlgorithm: " + algorithm +
                             "\nExecution Time (real): " + String.format("%.2f", realExecTime) + " sec" +
-                            "\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec"
+                            "\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec" +
+                            "\nStopped VMs: " + VMConsolidation.turnedOffVMs + " / " + numVMs
             );
+
 
             // actualizam starea ultimei simulari
             state.lastAlgorithm = algorithm;
