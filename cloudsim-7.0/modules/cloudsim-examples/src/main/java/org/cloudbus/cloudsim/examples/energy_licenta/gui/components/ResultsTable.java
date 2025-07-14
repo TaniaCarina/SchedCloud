@@ -69,7 +69,7 @@ public class ResultsTable {
         layout.setPadding(new Insets(20));
         layout.setStyle("-fx-background-color: #e0eaf5;");
 
-        Scene scene = new Scene(layout, 1000, 500);
+        Scene scene = new Scene(layout, 1300, 500);
         stage.setScene(scene);
         stage.show();
     }
@@ -89,16 +89,16 @@ public class ResultsTable {
         TableColumn<ResultsTable, String> hostCol = new TableColumn<>("Host");
         hostCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getHost()));
 
-        TableColumn<ResultsTable, String> startCol = new TableColumn<>("Start Time");
+        TableColumn<ResultsTable, String> startCol = new TableColumn<>("Start Time (s)");
         startCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStartTime()));
 
-        TableColumn<ResultsTable, String> finishCol = new TableColumn<>("Finish Time");
+        TableColumn<ResultsTable, String> finishCol = new TableColumn<>("Finish Time (s)");
         finishCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFinishTime()));
 
-        TableColumn<ResultsTable, String> execCol = new TableColumn<>("Exec Time");
+        TableColumn<ResultsTable, String> execCol = new TableColumn<>("Exec Time (s)");
         execCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecTime()));
 
-        TableColumn<ResultsTable, String> energyCol = new TableColumn<>("Energy");
+        TableColumn<ResultsTable, String> energyCol = new TableColumn<>("Energy (kJ)");
         energyCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getEnergy()));
 
         table.getColumns().addAll(idCol, statusCol, vmCol, hostCol, startCol, finishCol, execCol, energyCol);

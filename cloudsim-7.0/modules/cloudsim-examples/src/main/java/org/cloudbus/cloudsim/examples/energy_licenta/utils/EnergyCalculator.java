@@ -16,6 +16,7 @@ public class EnergyCalculator {
         double frequencyFactor = vm.getMips() > 250 ? 1.0 : 0.7;  // Daca MIPS < 250, frecventa e mai mica
 
         double powerPerMIPS = 0.5 * frequencyFactor;  // Reducem consumul energetic
-        return executionTime * vm.getMips() * powerPerMIPS / 1000.0;  // Convertim la kJ
+        double energyKJ = executionTime * vm.getMips() * powerPerMIPS / 1000.0;
+        return energyKJ;
     }
 }

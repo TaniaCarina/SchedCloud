@@ -48,12 +48,13 @@ public class ButtonActionHandler {
                     .mapToDouble(item -> parseDoubleSafe(item.getEnergy()))
                     .sum();
 
+            double tEnergy = totalEnergy / 3600.0;
+
             summaryLabel.setText(
-                    "Total Energy: " + String.format("%.2f", totalEnergy) + " kJ" +
+                    "Total Energy: " + String.format("%.6f", tEnergy) + " kJ" +
                             "\nAlgorithm: " + algorithm +
                             "\nExecution Time (real): " + String.format("%.2f", realExecTime) + " sec" +
-                            "\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec" +
-                            "\nStopped VMs: " + VMConsolidation.turnedOffVMs + " / " + numVMs
+                            "\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec" 
             );
 
 

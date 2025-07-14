@@ -76,13 +76,24 @@ public class ACO implements SchedulingAlgorithm {
 
     private void updatePheromone(Ant ant, Vm selectedVm) {
         String key = generateKey(ant.getCloudlet().getCloudletId(), selectedVm.getId());
-        pheromoneMap.put(key, pheromoneMap.getOrDefault(key, 1.0) + pheromoneIncrease);
+        double performance = evaluateSolution(ant, selectedVm);
+        double delta = pheromoneIncrease / performance; // mai bun = mai mult feromon
+        pheromoneMap.put(key, pheromoneMap.getOrDefault(key, 1.0) + delta);
     }
+
 
     private void evaporatePheromones() {
         for (String key : pheromoneMap.keySet()) {
             pheromoneMap.put(key, pheromoneMap.get(key) * (1 - evaporationRate));
         }
+    }
+
+    private double evaluateSolution(Ant ant, Vm vm) {
+        //estimare timp de execuție
+        long length = ant.getCloudlet().getCloudletLength();
+        long mips = (long) vm.getMips();
+        int pes = vm.getNumberOfPes();
+        return (double) length / (mips * pes);
     }
 
     private String generateKey(int cloudletId, int vmId) {

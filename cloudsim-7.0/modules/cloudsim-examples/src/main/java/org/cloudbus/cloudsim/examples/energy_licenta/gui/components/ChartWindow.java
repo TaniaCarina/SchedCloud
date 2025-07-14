@@ -63,10 +63,12 @@ public class ChartWindow {
         Label chartTitle = new Label("Energy Consumption Chart:");
         chartTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0D1B2A;");
 
+        double tEnergy = totalEnergy / 3600.0;
+
         Label leftInfo = new Label(
                 "Algorithm: " + algorithm +
                         "\nEnergy Efficient: " + (isDynamic ? "Enabled" : "Disabled") +
-                        "\nTotal Energy: " + String.format("%.2f", totalEnergy) + " kJ" +
+                        "\nTotal Energy: " + String.format("%.6f", tEnergy) + " kWh" +
                         "\nExecution Time (real): " + String.format("%.2f", realExecTime) + " sec"
         );
         leftInfo.setStyle("-fx-font-size: 16px; -fx-text-fill: #0D1B2A; -fx-font-weight: bold;");
