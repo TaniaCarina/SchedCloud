@@ -54,7 +54,7 @@ public class ButtonActionHandler {
                     "Total Energy: " + String.format("%.6f", tEnergy) + " kJ" +
                             "\nAlgorithm: " + algorithm +
                             "\nExecution Time (real): " + String.format("%.2f", realExecTime) + " sec" +
-                            "\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec" 
+                            "\nCloudlets Exec Time: " + String.format("%.2f", totalExecTime) + " sec"
             );
 
 
